@@ -26,10 +26,36 @@ migrate = Migrate(app, db)
 # TODO: connect to a local postgresql database
 db.create_all()
 
+# ----------------------------------------------------------------------------#
+# Association Tables.
+# ----------------------------------------------------------------------------#
+shows = db.Table('shows',
+                 db.Column('artist_id', db.Integer, db.ForeignKey('Artist.id'), primary_key=True),
+                 db.Column('venue_id', db.Integer, db.ForeignKey('Venue.id'), primary_key=True),
+                 db.Column('start_time', db.DateTime, primary_key=True),
+                 )
+
+venue_genre = db.Table('venue_genre',
+                       db.Column('genre_id', db.Integer, db.ForeignKey('Genre.id')),
+                       db.Column('venue_id', db.Integer, db.ForeignKey('Venue.id')),
+                       )
+
+artist_genre = db.Table('artist_genre',
+                        db.Column('genre_id', db.Integer, db.ForeignKey('Genre.id')),
+                        db.Column('artist_id', db.Integer, db.ForeignKey('Artist.id')),
+                        )
+
 
 # ----------------------------------------------------------------------------#
 # Models.
 # ----------------------------------------------------------------------------#
+
+
+class Genre(db.Model):
+    __tablename__ = 'Genre'
+    id = db.Column(db.Integer, primary_key=True)
+    genre = db.Column(db.String, nullable=False)
+
 
 class Venue(db.Model):
     __tablename__ = 'Venue'
@@ -44,6 +70,10 @@ class Venue(db.Model):
     facebook_link = db.Column(db.String(120))
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
+    genres = db.relationship("Genre", uselist=True, secondary=venue_genre)
+    website_link = db.Column(db.String(255))
+    seeking_talent = db.Column(db.Boolean)
+    seeking_description = db.Column(db.String(120))
 
 
 class Artist(db.Model):
@@ -54,11 +84,14 @@ class Artist(db.Model):
     city = db.Column(db.String(120))
     state = db.Column(db.String(120))
     phone = db.Column(db.String(120))
-    genres = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
+    genres = db.relationship("Genre", uselist=True, secondary=artist_genre)
+    website_link = db.Column(db.String(255))
+    seeking_venue = db.Column(db.Boolean)
+    seeking_description = db.Column(db.String(120))
 
 
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
