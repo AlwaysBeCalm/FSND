@@ -308,7 +308,23 @@ def edit_artist(artist_id):
 def edit_artist_submission(artist_id):
     # TODO: take values from the form submitted, and update existing
     # artist record with ID <artist_id> using the new attributes
-
+    form = request.form
+    artist = Artist.query.get(artist_id)
+    artist.name = form.get('name', None)
+    artist.city = form.get('city', None)
+    artist.state = form.get('state', None)
+    artist.phone = form.get('phone', None)
+    artist.facebook_link = form.get('facebook_link', None)
+    artist.image_link = form.get('image_link', None)
+    artist.website_link = form.get('website_link', None)
+    artist.seeking_venue = True if form.get('seeking_venue', False) == 'y' else False
+    artist.seeking_description = form.get('seeking_description', None)
+    genres = form.getlist('genres')
+    artist_genres = list()
+    for genre in genres:
+        artist_genres.append(Genre.query.filter_by(genre=genre).first())
+    artist.genres = artist_genres
+    db.session.commit()
     return redirect(url_for('show_artist', artist_id=artist_id))
 
 
