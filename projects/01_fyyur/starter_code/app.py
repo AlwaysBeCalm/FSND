@@ -233,13 +233,12 @@ def create_venue_submission():
         db.session.add(venue)
         db.session.commit()
         # on successful db insert, flash success
-        flash('Venue ' + venue.name + ' was successfully listed!')
-    except Exception as e:
-        print(e)
+        flash('Venue\'s data saved successfully!')
+    except:
         # TODO: on unsuccessful db insert, flash an error instead.
         # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
         # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
-        flash('Venue ' + name + ' was not successfully listed!')
+        flash('there was an error saving the data!')
         db.session.rollback()
     finally:
         db.session.close()
