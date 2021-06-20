@@ -340,6 +340,24 @@ def edit_venue(venue_id):
 def edit_venue_submission(venue_id):
     # TODO: take values from the form submitted, and update existing
     # venue record with ID <venue_id> using the new attributes
+    form = request.form
+    venue = Venue.query.get(venue_id)
+    venue.name = form.get('name', None)
+    venue.city = form.get('city', None)
+    venue.state = form.get('state', None)
+    venue.address = form.get('address', None)
+    venue.phone = form.get('phone', None)
+    venue.facebook_link = form.get('facebook_link', None)
+    venue.image_link = form.get('image_link', None)
+    venue.website_link = form.get('website_link', None)
+    venue.seeking_talent = True if form.get('seeking_talent', False) == 'y' else False
+    venue.seeking_description = form.get('seeking_description', None)
+    genres = form.getlist('genres')
+    venue_genres = list()
+    for genre in genres:
+        venue_genres.append(Genre.query.filter_by(genre=genre).first())
+    venue.genres = venue_genres
+    db.session.commit()
     return redirect(url_for('show_venue', venue_id=venue_id))
 
 
