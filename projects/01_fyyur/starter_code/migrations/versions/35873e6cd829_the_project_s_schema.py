@@ -35,27 +35,6 @@ def upgrade():
                     sa.Column('genre', sa.String(), nullable=False),
                     sa.PrimaryKeyConstraint('id')
                     )
-    op.execute('''insert into "Genre" (genre) values
-        ('Alternative'),
-        ('Blues'),
-        ('Classical'),
-        ('Country'),
-        ('Electronic'),
-        ('Folk'),
-        ('Funk'),
-        ('Hip-Hop'),
-        ('Heavy Metal'),
-        ('Instrumental'),
-        ('Jazz'),
-        ('Musical Theatre'),
-        ('Pop'),
-        ('Punk'),
-        ('R&B'),
-        ('Reggae'),
-        ('Rock n Roll'),
-        ('Soul'),
-        ('Other')
-        ''')
     op.create_table('Venue',
                     sa.Column('id', sa.Integer(), nullable=False),
                     sa.Column('name', sa.String(), nullable=True),
