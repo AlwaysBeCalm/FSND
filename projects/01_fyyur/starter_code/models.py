@@ -4,6 +4,8 @@ db = SQLAlchemy()
 
 # ----------------------------------------------------------------------------#
 # Association Tables.
+# These tables is to implements 3NF for the schema as every venue can be assigned
+# many genres, and a genre can be assigned to many venues, and the same for artists
 # ----------------------------------------------------------------------------#
 venue_genre = db.Table('venue_genre',
                        db.Column('genre_id', db.Integer, db.ForeignKey('Genre.id', ondelete='CASCADE')),
