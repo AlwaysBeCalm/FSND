@@ -3,7 +3,7 @@ __pycache__
 venv
 backend/api_venv
 frontend/node_modules
-.idea/
+../.idea
 
 
 # OS generated files #
