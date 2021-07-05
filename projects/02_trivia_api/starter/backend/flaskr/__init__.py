@@ -215,7 +215,12 @@ def create_app(test_config=None):
                 return jsonify({
                     "questions": None,
                 })
+
         question = random.choice(filtered_questions)
+        print({
+            "success": True,
+            "question": question.format(),
+        })
         return jsonify({
             "success": True,
             "question": question.format(),
