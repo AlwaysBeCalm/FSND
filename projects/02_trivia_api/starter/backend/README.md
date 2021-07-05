@@ -88,7 +88,7 @@ GET /categories/
     '3' : "Geography",
     '4' : "History",
     '5' : "Entertainment",
-    '6' : "Sports"
+    '6' : "Sports",
 }
 
 
@@ -100,7 +100,41 @@ GET /questions/
     2- an object current_category, which in this case indicates 'all', not a specific one.
     3- a dictionary of categories as id: category in key:value pair format
     4- an object total_questions, which indicates the total questions in the table.
-
+{
+    'categories': {
+        '1' : "Science",
+        '2' : "Art",
+        '3' : "Geography",
+        '4' : "History",
+        '5' : "Entertainment",
+        '6' : "Sports",
+    },
+    'current_category': "all", 
+    "questions": [
+    {
+      "answer": "Agra", 
+      "category": 3, 
+      "difficulty": 2, 
+      "id": 15, 
+      "question": "The Taj Mahal is located in which Indian city?"
+    }, 
+    {
+      "answer": "Escher", 
+      "category": 2, 
+      "difficulty": 1, 
+      "id": 16, 
+      "question": "Which Dutch graphic artist\u2013initials M C was a creator of optical illusions?"
+    }, 
+    {
+      "answer": "Mona Lisa", 
+      "category": 2, 
+      "difficulty": 3, 
+      "id": 17, 
+      "question": "La Giaconda is better known as what?"
+    }, ... etc
+    "success": true, 
+    "total_questions": 19,
+}
 
 DELETE /questions/<int:question_id>/
 - Delete a specific question from the database
@@ -108,7 +142,16 @@ DELETE /questions/<int:question_id>/
 - Returns:
     1- a message that indicate a successfull deletion of a question.
     2- or return a 404 error if the requested question doesn't exist
-
+on seccessfull deletion:
+{
+    "success": True,
+    "message": "Question deleted successfully."
+}
+or, on error 422 (failed deletion):
+{
+    "Message": "Unprocessable.",
+    "error": 422,
+}
 
 POST /questions/
 - Creates a new question, and save it in the database
@@ -116,7 +159,38 @@ POST /questions/
 - Returns: 
     1- an object which contains all the questions, and successfull saving message
     2- or return an 422 error in case of failing in processing/saving the question.
-
+on seccessfull insertion
+{
+    "success": True,
+    "message": "Question saved successfully.",
+    "questions": [
+    {
+      "answer": "Agra", 
+      "category": 3, 
+      "difficulty": 2, 
+      "id": 15, 
+      "question": "The Taj Mahal is located in which Indian city?"
+    }, 
+    {
+      "answer": "Escher", 
+      "category": 2, 
+      "difficulty": 1, 
+      "id": 16, 
+      "question": "Which Dutch graphic artist\u2013initials M C was a creator of optical illusions?"
+    }, 
+    {
+      "answer": "Mona Lisa", 
+      "category": 2, 
+      "difficulty": 3, 
+      "id": 17, 
+      "question": "La Giaconda is better known as what?"
+    }, ... etc
+}
+or, on error 422 (failed insertion)
+{
+    "Message": "Unprocessable.",
+    "error": 422,
+}
 
 POST /questions/search/
 - Fetches the questions which contains the search term
@@ -125,7 +199,76 @@ POST /questions/search/
     1- an object questions, which contains all the searched questions.
     2- an object total_questions, which indicates the total of all the questions in the database
     3- an object current_category, which indicates the categories of the searched questions
-
+on successfull search (using 'What' as search term)
+{
+    "current_category": [
+        4,
+        5,
+        3,
+        2,
+        1
+    ],
+    "questions": [
+        {
+            "answer": "Muhammad Ali",
+            "category": 4,
+            "difficulty": 1,
+            "id": 9,
+            "question": "What boxer's original name is Cassius Clay?"
+        },
+        {
+            "answer": "Apollo 13",
+            "category": 5,
+            "difficulty": 4,
+            "id": 2,
+            "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+        },
+        {
+            "answer": "Tom Cruise",
+            "category": 5,
+            "difficulty": 4,
+            "id": 4,
+            "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?"
+        },
+        {
+            "answer": "Edward Scissorhands",
+            "category": 5,
+            "difficulty": 3,
+            "id": 6,
+            "question": "What was the title of the 1990 fantasy directed by Tim Burton about a young man with multi-bladed appendages?"
+        },
+        {
+            "answer": "Lake Victoria",
+            "category": 3,
+            "difficulty": 2,
+            "id": 13,
+            "question": "What is the largest lake in Africa?"
+        },
+        {
+            "answer": "Mona Lisa",
+            "category": 2,
+            "difficulty": 3,
+            "id": 17,
+            "question": "La Giaconda is better known as what?"
+        },
+        {
+            "answer": "The Liver",
+            "category": 1,
+            "difficulty": 4,
+            "id": 20,
+            "question": "What is the heaviest organ in the human body?"
+        },
+        {
+            "answer": "Blood",
+            "category": 1,
+            "difficulty": 4,
+            "id": 22,
+            "question": "Hematology is a branch of medicine involving the study of what?"
+        }
+    ],
+    "success": true,
+    "total_questions": 19
+}
 
 GET /categories/<int:category_id>/questions/
 - Fetches the question of a specific category
@@ -134,12 +277,57 @@ GET /categories/<int:category_id>/questions/
     1- an object questions, which contains all the questions of a specific category
     2- an object total_questions, which indicates the total questions in a specific category
     3- an object current_category, which is the type of the passed category_id
-
+{
+    "current_category": "Art",
+    "questions": [
+        {
+            "answer": "Escher",
+            "category": 2,
+            "difficulty": 1,
+            "id": 16,
+            "question": "Which Dutch graphic artist–initials M C was a creator of optical illusions?"
+        },
+        {
+            "answer": "Mona Lisa",
+            "category": 2,
+            "difficulty": 3,
+            "id": 17,
+            "question": "La Giaconda is better known as what?"
+        },
+        {
+            "answer": "One",
+            "category": 2,
+            "difficulty": 4,
+            "id": 18,
+            "question": "How many paintings did Van Gogh sell in his lifetime?"
+        },
+        {
+            "answer": "Jackson Pollock",
+            "category": 2,
+            "difficulty": 2,
+            "id": 19,
+            "question": "Which American artist was a pioneer of Abstract Expressionism, and a leading exponent of action painting?"
+        }
+    ],
+    "success": true,
+    "total_questions": 4
+}
 
 POST /quizzes/
 - Fetches all the questions or questions of a specific category from the database
 - Requested Arguments: 1- the type of the quiz_category, 2- the previous_questions list
 - Return: an object question which is a random question of all the questions or of a specific category from the database
+{
+    'success': True, 
+    'question': 
+        {
+            'id': 15, 
+            'question': 'The Taj Mahal is located in which Indian city?', 
+            'answer': 'Agra', 
+            'category': 3, 
+            'difficulty': 2
+        }
+}
 ```
 
 
