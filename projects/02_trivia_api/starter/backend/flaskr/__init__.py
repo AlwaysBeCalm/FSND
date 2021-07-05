@@ -41,6 +41,7 @@ def create_app(test_config=None):
         all_categories = {category.id: category.type for category in Category.query.all()}
         return jsonify({
             "categories": all_categories,
+            "success": True,
         })
 
     # Done
@@ -87,19 +88,22 @@ def create_app(test_config=None):
     This removal will persist in the database and when you refresh the page. 
     '''
 
-    @app.route('/questions/<int:question_id>/delete/', methods=['DELETE'])
+    @app.route('/questions/<int:question_id>/', methods=['DELETE'])
     def delete_question(question_id):
         question = Question.query.filter(Question.id == question_id).one_or_none()
         if question is None:
             abort(404)
         else:
-            question.delete()
-            return jsonify(
-                {
-                    "success": True,
-                    "message": "Question deleted successfully."
-                }
-            )
+            try:
+                question.delete()
+                return jsonify(
+                    {
+                        "success": True,
+                        "message": "Question deleted successfully."
+                    }
+                )
+            except:
+                abort(422)
 
     # Done
     '''
@@ -148,7 +152,7 @@ def create_app(test_config=None):
     '''
 
     @app.route('/questions/search/', methods=['POST'])
-    def search_quesion():
+    def search_question():
         search_term = request.get_json().get('searchTerm', '')
         searched_questions = Question.query.filter(Question.question.ilike("%{}%".format(search_term))).all()
         total_questions = len(Question.query.all())
@@ -173,6 +177,8 @@ def create_app(test_config=None):
     def get_questions_by_category(category_id):
         filtered_questions = Question.query.filter(Question.category == category_id).all()
         current_category = Category.query.get(category_id)
+        if not current_category:
+            abort(404)
         return jsonify({
             "success": True,
             "questions": [question.format() for question in filtered_questions],
@@ -203,13 +209,15 @@ def create_app(test_config=None):
         else:
             filtered_questions = Question.query.all()
         previous_questions = data.get('previous_questions')
-        filtered_questions = [question for question in filtered_questions if question.id not in previous_questions]
-        if not filtered_questions:
-            return jsonify({
-                "questions": None,
-            })
+        if previous_questions:
+            filtered_questions = [question for question in filtered_questions if question.id not in previous_questions]
+            if not filtered_questions:
+                return jsonify({
+                    "questions": None,
+                })
         question = random.choice(filtered_questions)
         return jsonify({
+            "success": True,
             "question": question.format(),
         })
 
