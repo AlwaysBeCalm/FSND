@@ -4,7 +4,7 @@ venv
 backend/api_venv
 frontend/node_modules
 ../.idea
-
+backend/.env
 
 # OS generated files #
 ######################
