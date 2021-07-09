@@ -1,7 +1,8 @@
-import os
-from sqlalchemy import Column, String, Integer
-from flask_sqlalchemy import SQLAlchemy
 import json
+import os
+
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Column, String, Integer
 
 database_filename = "database.db"
 project_dir = os.path.dirname(os.path.abspath(__file__))
@@ -38,9 +39,9 @@ def db_drop_and_create_all():
         title='water',
         recipe='[{"name": "water", "color": "blue", "parts": 1}]'
     )
+    drink.insert()
 
 
-drink.insert()
 # ROUTES
 
 '''
@@ -64,7 +65,6 @@ class Drink(db.Model):
     '''
 
     def short(self):
-        print(json.loads(self.recipe))
         short_recipe = [{'color': r['color'], 'parts': r['parts']} for r in json.loads(self.recipe)]
         return {
             'id': self.id,
