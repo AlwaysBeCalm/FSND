@@ -1,16 +1,851 @@
-import os
 from flask import Flask, request, abort, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
-def create_app(test_config=None):
-  # create and configure the app
-  app = Flask(__name__)
-  CORS(app)
+from auth import requires_auth
+from models import *
+from settings import setup_db, db
+from flask_migrate import Migrate
 
-  return app
 
-APP = create_app()
+def create_app():
+    # create and configure the app
+    app = Flask(__name__)
+    app.url_map.strict_slashes = False
+    setup_db(app)
+    migrate = Migrate(app, db)
+    app.app_context().push()
+    CORS(app, resources={r"*": {"origins": '*'}})
+
+    @app.after_request
+    def after_request(response):
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, PATCH, POST, DELETE, OPTIONS')
+        return response
+
+    db.init_app(app)
+    # db.drop_all()
+    db.create_all(app=app)
+    return app
+
+
+app = create_app()
+
+
+@app.route('/', methods=['GET', ])
+def index():
+    return jsonify(
+        {
+            "1- message": "Welcome to the library application.",
+            "2- endpoints": "The endpoints of the app are:",
+            "3- /authors": "to add a new author, get an author/all authors or delete an author.",
+            "4- /categories": "to add a new category, get a category/all categories or delete a category.",
+            "5- /book": "to add a new book, get a book/all books or delete a book.",
+            "6- /borrower": "to add a new borrower, get a borrower/all borrowers or delete a borrower.",
+            "7- /borrowed_books": "to add a new borrowed book, get a borrowed book/all borrowed books or delete a borrowed book.",
+        }
+    )
+
+
+PER_PAGE = 10
+
+
+###################################################################
+# AUTHOR ENDPOINTS
+###################################################################
+
+
+@app.route('/authors/', methods=['GET', ])
+def authors():
+    page = request.args.get('page', 1, int)
+    per_page = request.args.get('per_page', PER_PAGE, int)
+    authors = Author.query.paginate(page=page, per_page=per_page).items
+    return jsonify(
+        {
+            "authors": [author.format() for author in authors],
+            "total": len(Author.query.all()),
+        }
+    )
+
+
+@app.route('/authors/<int:author_id>/', methods=['GET', ])
+def author(author_id):
+    author = Author.query.get_or_404(author_id)
+    return jsonify(
+        author.format()
+    )
+
+
+@app.route('/authors/', methods=['POST', ])
+@requires_auth('add:author')
+def add_author():
+    data = request.get_json()
+    if 'name' not in data:
+        return {
+            "error": "Must pass the author name in 'name'."
+        }
+    author_name = data.get('name')
+    new_author = Author(name=author_name)
+    try:
+        new_author.insert()
+        return jsonify(
+            {
+                "success": True,
+                "message": "Author has been added successfully.",
+                "total": len(Author.query.all()),
+            }
+        )
+    except:
+        abort(422)
+    finally:
+        db.session.close()
+
+
+@app.route('/authors/<int:author_id>/update/', methods=['PATCH', ])
+@requires_auth('update:author')
+def update_author(author_id):
+    data = request.get_json()
+    author = Author.query.get_or_404(author_id)
+    author.name = author.name if data is None else data.get('name', author.name)
+    try:
+        author.update()
+        return jsonify(
+            {
+                "success": True,
+                "message": "Author has been updated successfully.",
+                "author": Author.query.get_or_404(author_id).format(),
+            }
+        )
+    except:
+        abort(422)
+    finally:
+        db.session.close()
+
+
+@app.route('/authors/<int:author_id>/delete/', methods=['DELETE', ])
+@requires_auth('delete:author')
+def delete_author(author_id):
+    author = Author.query.get_or_404(author_id)
+    try:
+        author.delete()
+        return jsonify(
+            {
+                "success": True,
+                "message": "Author has been deleted successfully.",
+                "total": len(Author.query.all()),
+            }
+        )
+    except:
+        abort(422)
+    finally:
+        db.session.close()
+
+
+# TODO: get book of current author (DONE)
+@app.route('/authors/<int:author_id>/books/', methods=['GET', ])
+def author_books(author_id):
+    Author.query.get_or_404(author_id)
+    books = Book.query.filter(Book.author_id == author_id).all()
+    try:
+        return jsonify(
+            {
+                "success": True,
+                "books": [book.format() for book in books],
+                "total": len(books)
+            }
+        )
+    except:
+        abort(422)
+    finally:
+        db.session.close()
+
+
+###################################################################
+# CATEGORY ENDPOINTS
+###################################################################
+
+
+@app.route('/categories/', methods=['GET', ])
+def categories():
+    page = request.args.get('page', 1, int)
+    per_page = request.args.get('per_page', PER_PAGE, int)
+    categories = Category.query.paginate(page=page, per_page=per_page).items
+    return jsonify(
+        {
+            "categories": [category.format() for category in categories],
+            "total": len(Category.query.all())
+        }
+    )
+
+
+@app.route('/categories/<int:category_id>/', methods=['GET', ])
+def category(category_id):
+    category = Category.query.get_or_404(category_id)
+    return jsonify(
+        {
+            "category": category.format(),
+            "success": True,
+        }
+    )
+
+
+@app.route('/categories/', methods=['POST', ])
+@requires_auth('add:category')
+def add_category():
+    data = request.get_json()
+    if 'title' not in data:
+        return {
+            "error": "Must pass the category title in 'title'."
+        }
+    category_title = data.get('title')
+    new_category = Category(title=category_title)
+    try:
+        new_category.insert()
+        return jsonify(
+            {
+                "success": True,
+                "message": "Category has been added successfully.",
+                "total": len(Category.query.all())
+            }
+        )
+    except:
+        abort(422)
+    finally:
+        db.session.close()
+
+
+@app.route('/categories/<int:category_id>/update/', methods=['PATCH', ])
+@requires_auth('update:category')
+def update_category(category_id):
+    data = request.get_json()
+    category = Category.query.get_or_404(category_id)
+    category.title = category.title if data is None else data.get('title', category.title)
+    try:
+        category.update()
+        return jsonify(
+            {
+                "success": True,
+                "message": "Category has been updated successfully.",
+                "category": Category.query.get_or_404(category_id).format(),
+            }
+        )
+    except:
+        abort(422)
+    finally:
+        db.session.close()
+
+
+@app.route('/categories/<int:category_id>/delete/', methods=['DELETE', ])
+@requires_auth('delete:category')
+def delete_category(category_id):
+    category = Category.query.get_or_404(category_id)
+    try:
+        category.delete()
+        return jsonify(
+            {
+                "success": True,
+                "message": "Category has been deleted successfully.",
+                "total": len(Category.query.all()),
+            }
+        )
+    except:
+        abort(422)
+    finally:
+        db.session.close()
+
+
+# TODO: get books in current category (DONE)
+@app.route('/categories/<int:category_id>/books/', methods=['GET', ])
+def category_books(category_id):
+    Category.query.get_or_404(category_id)
+    books = Book.query.filter(Book.category_id == category_id).all()
+    try:
+        return jsonify(
+            {
+                "success": True,
+                "books": [book.format() for book in books],
+                "total": len(books)
+            }
+        )
+    except:
+        abort(422)
+    finally:
+        db.session.close()
+
+
+###################################################################
+# BOOKS ENDPOINTS
+###################################################################
+
+
+@app.route('/books/', methods=['GET', ])
+def books():
+    page = request.args.get('page', 1, int)
+    per_page = request.args.get('per_page', PER_PAGE, int)
+    books = Book.query.paginate(page=page, per_page=per_page).items
+    return jsonify(
+        {
+            "books": [book.format() for book in books],
+            "total": len(Book.query.all())
+        }
+    )
+
+
+@app.route('/books/<int:book_id>/', methods=['GET', ])
+def book(book_id):
+    book = Book.query.get_or_404(book_id)
+    return jsonify(
+        {
+            "book": book.format(),
+            "success": True,
+        }
+    )
+
+
+@app.route('/books/', methods=['POST', ])
+@requires_auth('add:book')
+def add_book():
+    data = request.get_json()
+    if 'title' not in data:
+        return jsonify(
+            {
+                "error": "Must pass the book title in 'title'."
+            }
+        )
+    book_title = data.get('title')
+
+    if 'pages' not in data:
+        return jsonify(
+            {
+                "error": "Must pass the book pages in 'pages'."
+            }
+        )
+    book_pages = data.get('pages')
+
+    if 'about' not in data:
+        return jsonify(
+            {
+                "error": "Must pass the book about in 'about'."
+            }
+        )
+    book_about = data.get('about')
+
+    if 'author_id' not in data:
+        return jsonify(
+            {
+                "error": "Must pass the book author_id in 'author_id'."
+            }
+        )
+    book_author = int(data.get('author_id'))
+
+    author_ids = [author.id for author in Author.query.distinct(Author.id).all()]
+    if book_author not in author_ids:
+        return jsonify(
+            {
+                "error": True,
+                "author_ids": author_ids,
+                "message": "author id must be in author ids.",
+            }
+        ), 400
+
+    if 'category_id' not in data:
+        return jsonify(
+            {
+                "error": "Must pass the book category_id in 'category_id'."
+            }
+        )
+    book_category = int(data.get('category_id'))
+
+    category_ids = [category.id for category in Category.query.distinct(Category.id).all()]
+    if book_category not in category_ids:
+        return jsonify(
+            {
+                "error": True,
+                "category_ids": category_ids,
+                "message": "category id must be in category ids.",
+            }
+        ), 400
+
+    new_book = Book(
+        title=book_title,
+        pages=book_pages,
+        about=book_about,
+        category=Category.query.get_or_404(book_category),
+        author=Author.query.get_or_404(book_author)
+    )
+    try:
+        new_book.insert()
+        return jsonify(
+            {
+                "success": True,
+                "message": "Book has been added successfully.",
+                "total": len(Book.query.all())
+            }
+        )
+    except:
+        abort(422)
+    finally:
+        db.session.close()
+
+
+@app.route('/books/<int:book_id>/update/', methods=['PATCH', ])
+@requires_auth('update:book')
+def update_book(book_id):
+    data = request.get_json()
+    book = Book.query.get_or_404(book_id)
+
+    try:
+        book.title = book.title if data is None else data.get('title', book.title)
+        book.pages = book.pages if data is None else data.get('pages', book.pages)
+        book.about = book.about if data is None else data.get('about', book.about)
+
+        author_ids = [author.id for author in Author.query.distinct(Author.id).all()]
+        book_author = book.author_id if data is None else data.get('author_id', book.author_id)
+        if book_author not in author_ids:
+            return jsonify(
+                {
+                    "error": True,
+                    "author_ids": author_ids,
+                    "message": "author id must be in author ids.",
+                }
+            ), 400
+
+        book_category = book.category_id if data is None else data.get('category_id', book.category_id)
+        category_ids = [category.id for category in Category.query.distinct(Category.id).all()]
+        if book_category not in category_ids:
+            return jsonify(
+                {
+                    "error": True,
+                    "category_ids": category_ids,
+                    "message": "category id must be in category ids.",
+                }
+            ), 400
+
+        book.author = Author.query.get_or_404(book_author)
+        book.category = Category.query.get_or_404(book_category)
+        book.update()
+        return jsonify(
+            {
+                "success": True,
+                "message": "Book has been updated successfully.",
+                "book": Book.query.get_or_404(book_id).format()
+            }
+        )
+    except:
+        abort(422)
+    finally:
+        db.session.close()
+
+
+@app.route('/books/<int:book_id>/delete/', methods=['DELETE', ])
+@requires_auth('delete:book')
+def delete_book(book_id):
+    book = Book.query.get_or_404(book_id)
+    try:
+        book.delete()
+        return jsonify(
+            {
+                "success": True,
+                "message": "Book has been deleted successfully.",
+                "total": len(Book.query.all()),
+            }
+        )
+    except:
+        abort(422)
+    finally:
+        db.session.close()
+
+
+# TODO: get borrowers of current book (DONE)
+@app.route('/books/<int:book_id>/borrowers/', methods=['GET', ])
+def book_borrowers(book_id):
+    borrowers = Borrower.query.join(BorrowedBooks).filter(BorrowedBooks.book_id == book_id).all()
+    try:
+        return jsonify(
+            {
+                "total_borrowers": len(borrowers),
+                "borrowers": [borrower.format() for borrower in borrowers],
+                "success": True,
+            }
+        )
+    except:
+        abort(422)
+    finally:
+        db.session.close()
+
+###################################################################
+# BORROWERS ENDPOINTS
+###################################################################
+
+
+@app.route('/borrowers/', methods=['GET', ])
+def borrowers():
+    page = request.args.get('page', 1, int)
+    per_page = request.args.get('per_page', PER_PAGE, int)
+    borrowers = Borrower.query.paginate(page=page, per_page=per_page).items
+    return jsonify(
+        {
+            "borrowers": [borrower.format() for borrower in borrowers],
+            "total": len(Borrower.query.all())
+        }
+    )
+
+
+@app.route('/borrowers/<int:borrower_id>/', methods=['GET', ])
+def borrower(borrower_id):
+    borrower = Borrower.query.get_or_404(borrower_id)
+    return jsonify(
+        {
+            "success": True,
+            "borrower": borrower.format(),
+        }
+    )
+
+
+@app.route('/borrowers/', methods=['POST', ])
+@requires_auth('add:borrower')
+def add_borrower():
+    data = request.get_json()
+
+    if 'name' not in data:
+        return {
+                "error": "Must pass the borrower name in 'name'."
+            }
+    borrower_name = request.get_json().get('name')
+
+    new_borrower = Borrower(
+        name=borrower_name
+    )
+    try:
+        new_borrower.insert()
+        return jsonify(
+            {
+                "success": True,
+                "message": "Borrower has been added successfully.",
+                "total": len(Borrower.query.all())
+            }
+        )
+    except:
+        abort(422)
+    finally:
+        db.session.close()
+
+
+@app.route('/borrowers/<int:borrower_id>/update/', methods=['PATCH', ])
+@requires_auth('update:borrower')
+def update_borrower(borrower_id):
+    borrower = Borrower.query.get_or_404(borrower_id)
+    data = request.get_json()
+    borrower.name = borrower.name if data is None else data.get('name', borrower.name)
+    try:
+        borrower.update()
+        return jsonify(
+            {
+                "success": True,
+                "message": "Borrower has been Updated successfully.",
+                "borrower": Borrower.query.get_or_404(borrower_id).format()
+            }
+        )
+    except:
+        abort(422)
+    finally:
+        db.session.close()
+
+
+@app.route('/borrowers/<int:borrower_id>/delete/', methods=['DELETE', ])
+@requires_auth('delete:borrower')
+def delete_borrower(borrower_id):
+    borrower = Borrower.query.get_or_404(borrower_id)
+    try:
+        borrower.delete()
+        return jsonify(
+            {
+                "success": True,
+                "message": "Borrower has been deleted successfully.",
+                "total": len(Borrower.query.all()),
+            }
+        )
+    except:
+        abort(422)
+    finally:
+        db.session.close()
+
+
+# TODO: get books of current borrower (Done)
+@app.route('/borrowers/<int:borrower_id>/books/', methods=['GET', ])
+def borrower_books(borrower_id):
+    borrower = Borrower.query.get_or_404(borrower_id)
+    books = Book.query.join(BorrowedBooks).filter(BorrowedBooks.borrower_id == borrower_id).all()
+    return jsonify(
+        {
+            "success": True,
+            "books": [book.format() for book in books] if len(books) > 0 else f"no books borrowed by {borrower.name}",
+            "total": len(books),
+        }
+    )
+
+
+###################################################################
+# BORROWED BOOKS ENDPOINTS
+###################################################################
+
+
+@app.route('/borrowed_books/', methods=['GET', ])
+# @requires_auth('get:borrowed_books')
+def borrowed_books():
+    page = request.args.get('page', 1, int)
+    per_page = request.args.get('per_page', PER_PAGE, int)
+    borrowed_books = BorrowedBooks.query.paginate(page=page, per_page=per_page).items
+    return jsonify(
+        {
+            "borrowed_books": [borrowed_book.format() for borrowed_book in borrowed_books],
+            "total": len(BorrowedBooks.query.all())
+        }
+    )
+
+
+@app.route('/borrowed_books/<int:borrowed_book_id>/', methods=['GET', ])
+@requires_auth('get:borrowed_book')
+def borrowed_book(borrowed_book_id):
+    borrowed_book = BorrowedBooks.query.get_or_404(borrowed_book_id)
+    return jsonify(
+        {
+            "success": True,
+            "borrowed_book": borrowed_book.format(),
+        }
+    )
+
+
+@app.route('/borrowed_books/', methods=['POST', ])
+@requires_auth('add:borrowed_book')
+def add_borrowed_book():
+    data = request.get_json()
+    if 'book_id' not in data:
+        return jsonify(
+            {
+                "error": True,
+                "message": "Must pass book id in 'book_id'.",
+            }
+        )
+    if 'borrower_id' not in data:
+        return jsonify(
+            {
+                "error": True,
+                "message": "Must pass borrower id in 'borrower_id'.",
+            }
+        )
+
+    book_id = int(data.get('book_id'))
+    book_ids = [book.id for book in Book.query.distinct(Book.id).all()]
+    if book_id not in book_ids:
+        return jsonify(
+            {
+                "error": True,
+                "books_ids": book_ids,
+                "message": "book id must be in books ids.",
+            }
+        )
+
+    borrower_id = int(data.get('borrower_id'))
+    borrowers_ids = [borrower.id for borrower in Borrower.query.distinct(Borrower.id).all()]
+    if borrower_id not in borrowers_ids:
+        return jsonify(
+            {
+                "error": True,
+                "borrowers_ids": borrowers_ids,
+                "message": "borrower id must be in borrowers ids.",
+            }
+        )
+
+    new_borrowed_book = BorrowedBooks(
+        book_id=book_id,
+        borrower_id=borrower_id
+    )
+    try:
+        new_borrowed_book.insert()
+        return jsonify(
+            {
+                "success": True,
+                "message": "Borrowed Book has been added successfully.",
+                "total": len(BorrowedBooks.query.all())
+            }
+        )
+    except:
+        abort(422)
+    finally:
+        db.session.close()
+
+
+@app.route('/borrowed_books/<int:borrowed_book_id>/update/', methods=['PATCH', ])
+@requires_auth('update:borrowed_book')
+def update_borrowed_book(borrowed_book_id):
+    data = request.get_json()
+
+    borrowed_book = BorrowedBooks.query.get_or_404(borrowed_book_id)
+    book_id = borrowed_book.book_id if data is None else int(data.get('book_id'))
+
+    book_ids = [book.id for book in Book.query.distinct(Book.id).all()]
+    if book_id not in book_ids:
+        return jsonify(
+            {
+                "error": True,
+                "books_ids": book_ids,
+                "message": "book id must be in books ids.",
+            }
+        )
+
+    borrower_id = borrowed_book.borrower_id if data is None else int(data.get('borrower_id'))
+    borrowers_ids = [borrower.id for borrower in Borrower.query.distinct(Borrower.id).all()]
+    if borrower_id not in borrowers_ids:
+        return jsonify(
+            {
+                "error": True,
+                "borrowers_ids": borrowers_ids,
+                "message": "borrower id must be in borrowers ids.",
+            }
+        )
+    borrowed_book.book_id = book_id
+    borrowed_book.borrower_id = borrower_id
+    try:
+        borrowed_book.update()
+        return jsonify(
+            {
+                "success": True,
+                "message": "Borrowed Book has been updated successfully.",
+                "total": len(BorrowedBooks.query.all()),
+                "borrowed_book": BorrowedBooks.query.get_or_404(borrowed_book_id).format(),
+            }
+        )
+    except:
+        abort(422)
+    finally:
+        db.session.close()
+
+
+@app.route('/borrowed_books/<int:borrowed_book_id>/delete/', methods=['DELETE', ])
+@requires_auth('delete:borrowed_book')
+def delete_borrowed_book(borrowed_book_id):
+    borrowed_book = BorrowedBooks.query.get_or_404(borrowed_book_id)
+    try:
+        borrowed_book.delete()
+        return jsonify(
+            {
+                "success": True,
+                "message": "Borrowed Book has been deleted successfully.",
+                "total": len(BorrowedBooks.query.all()),
+            }
+        )
+    except:
+        abort(422)
+    finally:
+        db.session.close()
+
+
+# TODO: update the rating of the book and the return time (Done)
+@app.route('/borrowed_books/<int:borrowed_book_id>/return/', methods=['PATCH', ])
+@requires_auth('update:borrowed_book')
+def return_borrowed_book(borrowed_book_id):
+    data = request.get_json()
+
+    borrowed_book = BorrowedBooks.query.get_or_404(borrowed_book_id)
+    if 'rating' not in data:
+        return {
+            "error": "Must pass the rating in 'rating'."
+        }
+    if not (0 <= data.get('rating') <= 10):
+        return {
+            "error": "Rating must be between 0 and 10"
+        }
+    borrowed_book.returned_at = datetime.datetime.now()
+    borrowed_book.rating = data.get('rating')
+    try:
+        borrowed_book.update()
+        return jsonify(
+            {
+                "success": True,
+                "message": "Borrowed Book has been updated successfully.",
+                "total": len(BorrowedBooks.query.all()),
+                "borrowed_book": BorrowedBooks.query.get_or_404(borrowed_book_id).format(),
+            }
+        )
+    except:
+        abort(422)
+    finally:
+        db.session.close()
+
+###################################################################
+# EXCEPTIONS
+###################################################################
+
+
+@app.errorhandler(400)
+def bad_request(error):
+    return jsonify(
+        {
+            "message": "bad request",
+            "error": 400,
+        }
+    ), 400
+
+
+@app.errorhandler(401)
+def unauthorized(error):
+    return jsonify(
+        {
+            "message": "unauthorized",
+            "error": 401,
+        }
+    ), 401
+
+
+@app.errorhandler(403)
+def forbidden(error):
+    return jsonify(
+        {
+            "message": "forbidden",
+            "error": 403,
+        }
+    ), 403
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify(
+        {
+            "message": "not found",
+            "error": 404,
+        }
+    ), 404
+
+
+@app.errorhandler(405)
+def method_not_allowed(error):
+    return jsonify(
+        {
+            "message": "method not allowed",
+            "error": 405,
+        }
+    ), 405
+
+
+@app.errorhandler(422)
+def unprocessable(error):
+    return jsonify(
+        {
+            "message": "unprocessable",
+            "error": 422,
+        }
+    ), 422
+
+
+@app.errorhandler(500)
+def server_error(error):
+    return jsonify(
+        {
+            "message": "server error",
+            "error": 500,
+        }
+    ), 500
+
 
 if __name__ == '__main__':
-    APP.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True)
