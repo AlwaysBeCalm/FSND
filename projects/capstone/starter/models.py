@@ -1,6 +1,8 @@
 import datetime
 
-from settings import *
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 
 class Author(db.Model):
@@ -130,7 +132,7 @@ class Book(db.Model):
         for book in self.borrowed:
             ratings = BorrowedBooks.query.get(book.id)
             current_book_rating += ratings.rating
-        avg_rating = current_book_rating / len(self.borrowed)
+        avg_rating = current_book_rating / (len(self.borrowed) if len(self.borrowed) != 0 else 1)
         return avg_rating
 
     def format(self):
@@ -141,8 +143,8 @@ class Book(db.Model):
             'pages': self.pages,
             'about': self.about,
             'number_of_borrowed_times': len(self.borrowed),
-            'author': self.author.name,
-            'category': self.category.title,
+            'author': self.author.name if self.author is not None else "No Author.",
+            'category': self.category.title if self.category is not None else "No Category",
             'rating': f"{self.get_rating()} of 10",
         }
 
