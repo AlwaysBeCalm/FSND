@@ -467,7 +467,8 @@ class LibraryManagerTestCase(unittest.TestCase):
 
         # test updating a borrower with the token of manager
         headers = {'Authorization': 'Bearer {}'.format(manager_token)}
-        res = self.client().patch('/borrowed_books/1/update', json=new_borrowed_book, headers=headers)
+        res = self.client().patch('/borrowed_books/1/update',
+                                  json=new_borrowed_book, headers=headers)
         self.assertEqual(res.status_code, 200)
 
         # test updating a borrowed book with manager token and give it wrong book id
@@ -478,7 +479,8 @@ class LibraryManagerTestCase(unittest.TestCase):
 
         # test updating a borrower with the token of manager
         headers = {'Authorization': 'Bearer {}'.format(manager_token)}
-        res = self.client().patch('/borrowed_books/1/update', json=new_borrowed_book, headers=headers)
+        res = self.client().patch('/borrowed_books/1/update',
+                                  json=new_borrowed_book, headers=headers)
         self.assertEqual(res.status_code, 400)
 
         # test updating a borrowed book with manager token and give it wrong category id
@@ -489,7 +491,8 @@ class LibraryManagerTestCase(unittest.TestCase):
 
         # test updating a borrower with the token of manager
         headers = {'Authorization': 'Bearer {}'.format(manager_token)}
-        res = self.client().patch('/borrowed_books/1/update', json=new_borrowed_book, headers=headers)
+        res = self.client().patch('/borrowed_books/1/update',
+                                  json=new_borrowed_book, headers=headers)
         self.assertEqual(res.status_code, 400)
 
         # test updating a borrower without the token of manager
@@ -518,7 +521,8 @@ class LibraryManagerTestCase(unittest.TestCase):
 
         # test returning a borrower with the token of manager
         headers = {'Authorization': 'Bearer {}'.format(manager_token)}
-        res = self.client().patch('/borrowed_books/1/return/', json=new_borrowed_book, headers=headers)
+        res = self.client().patch('/borrowed_books/1/return/',
+                                  json=new_borrowed_book, headers=headers)
         self.assertEqual(res.status_code, 200)
 
         # test returning a borrowed book with manager token and give it wrong rating
@@ -528,7 +532,8 @@ class LibraryManagerTestCase(unittest.TestCase):
 
         # test updating a borrower with the token of manager
         headers = {'Authorization': 'Bearer {}'.format(manager_token)}
-        res = self.client().patch('/borrowed_books/1/return', json=new_borrowed_book, headers=headers)
+        res = self.client().patch('/borrowed_books/1/return',
+                                  json=new_borrowed_book, headers=headers)
         self.assertEqual(res.status_code, 400)
 
         # test updating a borrower without the token of manager
@@ -822,7 +827,8 @@ class LibraryAuthorTestCase(unittest.TestCase):
 
         # test returning a borrower with the token of author
         headers = {'Authorization': 'Bearer {}'.format(author_token)}
-        res = self.client().patch('/borrowed_books/1/return/', json=new_borrowed_book, headers=headers)
+        res = self.client().patch('/borrowed_books/1/return/',
+                                  json=new_borrowed_book, headers=headers)
         self.assertEqual(res.status_code, 200)
 
         # test returning a borrowed book with author token and give it wrong rating
@@ -832,7 +838,8 @@ class LibraryAuthorTestCase(unittest.TestCase):
 
         # test updating a borrower with the token of author
         headers = {'Authorization': 'Bearer {}'.format(author_token)}
-        res = self.client().patch('/borrowed_books/1/return', json=new_borrowed_book, headers=headers)
+        res = self.client().patch('/borrowed_books/1/return',
+                                  json=new_borrowed_book, headers=headers)
         self.assertEqual(res.status_code, 400)
 
         # test updating a borrower without the token of author
@@ -1047,7 +1054,8 @@ class LibraryBorrowerTestCase(unittest.TestCase):
 
         # test returning a borrower with the token of borrower
         headers = {'Authorization': 'Bearer {}'.format(borrower_token)}
-        res = self.client().patch('/borrowed_books/1/return/', json=new_borrowed_book, headers=headers)
+        res = self.client().patch('/borrowed_books/1/return/',
+                                  json=new_borrowed_book, headers=headers)
         self.assertEqual(res.status_code, 200)
 
         # test returning a borrowed book with borrower token and give it wrong rating
@@ -1057,7 +1065,8 @@ class LibraryBorrowerTestCase(unittest.TestCase):
 
         # test updating a borrower with the token of borrower
         headers = {'Authorization': 'Bearer {}'.format(borrower_token)}
-        res = self.client().patch('/borrowed_books/1/return', json=new_borrowed_book, headers=headers)
+        res = self.client().patch('/borrowed_books/1/return',
+                                  json=new_borrowed_book, headers=headers)
         self.assertEqual(res.status_code, 400)
 
         # test updating a borrower without the token of borrower
