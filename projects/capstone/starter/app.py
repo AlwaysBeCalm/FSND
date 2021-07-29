@@ -3,8 +3,7 @@ from flask_cors import CORS
 
 from auth import requires_auth
 from models import *
-from settings import setup_db, db
-from flask_migrate import Migrate
+from settings import setup_db, drop_all_create_all_add_record
 
 
 def create_app():
@@ -12,7 +11,11 @@ def create_app():
     app = Flask(__name__)
     app.url_map.strict_slashes = False
     setup_db(app)
-    migrate = Migrate(app, db)
+
+    # the next method will drop all the tables and recreates them and insert a single row in every table.
+    # IMPORTANT: RUN ONCE OR ELSE ALL THE DATA WILL BE LOST WHEN RUNNING THE APP AGAIN
+    # drop_all_create_all_add_record()
+
     app.app_context().push()
     CORS(app, resources={r"*": {"origins": '*'}})
 
@@ -22,11 +25,7 @@ def create_app():
         response.headers.add('Access-Control-Allow-Methods', 'GET, PATCH, POST, DELETE, OPTIONS')
         return response
 
-    db.init_app(app)
-    # db.drop_all()
-    db.create_all(app=app)
     return app
-
 
 app = create_app()
 
@@ -55,6 +54,7 @@ PER_PAGE = 10
 
 
 @app.route('/authors/', methods=['GET', ])
+@requires_auth('get:authors')
 def authors():
     page = request.args.get('page', 1, int)
     per_page = request.args.get('per_page', PER_PAGE, int)
@@ -68,6 +68,7 @@ def authors():
 
 
 @app.route('/authors/<int:author_id>/', methods=['GET', ])
+@requires_auth('get:author')
 def author(author_id):
     author = Author.query.get_or_404(author_id)
     return jsonify(
@@ -80,9 +81,11 @@ def author(author_id):
 def add_author():
     data = request.get_json()
     if 'name' not in data:
-        return {
-            "error": "Must pass the author name in 'name'."
-        }
+        return jsonify(
+            {
+                "error": "Must pass the author name in 'name'."
+            }
+        ), 400
     author_name = data.get('name')
     new_author = Author(name=author_name)
     try:
@@ -142,6 +145,7 @@ def delete_author(author_id):
 
 # TODO: get book of current author (DONE)
 @app.route('/authors/<int:author_id>/books/', methods=['GET', ])
+@requires_auth('get:author-books')
 def author_books(author_id):
     Author.query.get_or_404(author_id)
     books = Book.query.filter(Book.author_id == author_id).all()
@@ -165,6 +169,7 @@ def author_books(author_id):
 
 
 @app.route('/categories/', methods=['GET', ])
+@requires_auth('get:categories')
 def categories():
     page = request.args.get('page', 1, int)
     per_page = request.args.get('per_page', PER_PAGE, int)
@@ -178,6 +183,7 @@ def categories():
 
 
 @app.route('/categories/<int:category_id>/', methods=['GET', ])
+@requires_auth('get:category')
 def category(category_id):
     category = Category.query.get_or_404(category_id)
     return jsonify(
@@ -193,9 +199,11 @@ def category(category_id):
 def add_category():
     data = request.get_json()
     if 'title' not in data:
-        return {
-            "error": "Must pass the category title in 'title'."
-        }
+        return jsonify(
+            {
+                "error": "Must pass the category title in 'title'."
+            }
+        ), 400
     category_title = data.get('title')
     new_category = Category(title=category_title)
     try:
@@ -255,6 +263,7 @@ def delete_category(category_id):
 
 # TODO: get books in current category (DONE)
 @app.route('/categories/<int:category_id>/books/', methods=['GET', ])
+@requires_auth('get:category-books')
 def category_books(category_id):
     Category.query.get_or_404(category_id)
     books = Book.query.filter(Book.category_id == category_id).all()
@@ -278,6 +287,7 @@ def category_books(category_id):
 
 
 @app.route('/books/', methods=['GET', ])
+@requires_auth('get:books')
 def books():
     page = request.args.get('page', 1, int)
     per_page = request.args.get('per_page', PER_PAGE, int)
@@ -291,6 +301,7 @@ def books():
 
 
 @app.route('/books/<int:book_id>/', methods=['GET', ])
+@requires_auth('get:book')
 def book(book_id):
     book = Book.query.get_or_404(book_id)
     return jsonify(
@@ -310,7 +321,7 @@ def add_book():
             {
                 "error": "Must pass the book title in 'title'."
             }
-        )
+        ), 400
     book_title = data.get('title')
 
     if 'pages' not in data:
@@ -318,7 +329,7 @@ def add_book():
             {
                 "error": "Must pass the book pages in 'pages'."
             }
-        )
+        ), 400
     book_pages = data.get('pages')
 
     if 'about' not in data:
@@ -326,7 +337,7 @@ def add_book():
             {
                 "error": "Must pass the book about in 'about'."
             }
-        )
+        ), 400
     book_about = data.get('about')
 
     if 'author_id' not in data:
@@ -334,7 +345,7 @@ def add_book():
             {
                 "error": "Must pass the book author_id in 'author_id'."
             }
-        )
+        ), 400
     book_author = int(data.get('author_id'))
 
     author_ids = [author.id for author in Author.query.distinct(Author.id).all()]
@@ -352,7 +363,7 @@ def add_book():
             {
                 "error": "Must pass the book category_id in 'category_id'."
             }
-        )
+        ), 400
     book_category = int(data.get('category_id'))
 
     category_ids = [category.id for category in Category.query.distinct(Category.id).all()]
@@ -457,6 +468,7 @@ def delete_book(book_id):
 
 # TODO: get borrowers of current book (DONE)
 @app.route('/books/<int:book_id>/borrowers/', methods=['GET', ])
+@requires_auth('get:book-borrowers')
 def book_borrowers(book_id):
     borrowers = Borrower.query.join(BorrowedBooks).filter(BorrowedBooks.book_id == book_id).all()
     try:
@@ -478,6 +490,7 @@ def book_borrowers(book_id):
 
 
 @app.route('/borrowers/', methods=['GET', ])
+@requires_auth('get:borrowers')
 def borrowers():
     page = request.args.get('page', 1, int)
     per_page = request.args.get('per_page', PER_PAGE, int)
@@ -491,6 +504,7 @@ def borrowers():
 
 
 @app.route('/borrowers/<int:borrower_id>/', methods=['GET', ])
+@requires_auth('get:borrower')
 def borrower(borrower_id):
     borrower = Borrower.query.get_or_404(borrower_id)
     return jsonify(
@@ -507,9 +521,11 @@ def add_borrower():
     data = request.get_json()
 
     if 'name' not in data:
-        return {
+        return jsonify(
+            {
                 "error": "Must pass the borrower name in 'name'."
             }
+        ), 400
     borrower_name = request.get_json().get('name')
 
     new_borrower = Borrower(
@@ -572,13 +588,13 @@ def delete_borrower(borrower_id):
 
 # TODO: get books of current borrower (Done)
 @app.route('/borrowers/<int:borrower_id>/books/', methods=['GET', ])
+@requires_auth('get:borrower-books')
 def borrower_books(borrower_id):
-    borrower = Borrower.query.get_or_404(borrower_id)
     books = Book.query.join(BorrowedBooks).filter(BorrowedBooks.borrower_id == borrower_id).all()
     return jsonify(
         {
             "success": True,
-            "books": [book.format() for book in books] if len(books) > 0 else f"no books borrowed by {borrower.name}",
+            "books": [book.format() for book in books],
             "total": len(books),
         }
     )
@@ -590,7 +606,7 @@ def borrower_books(borrower_id):
 
 
 @app.route('/borrowed_books/', methods=['GET', ])
-# @requires_auth('get:borrowed_books')
+@requires_auth('get:borrowed_books')
 def borrowed_books():
     page = request.args.get('page', 1, int)
     per_page = request.args.get('per_page', PER_PAGE, int)
@@ -625,14 +641,15 @@ def add_borrowed_book():
                 "error": True,
                 "message": "Must pass book id in 'book_id'.",
             }
-        )
+        ), 400
+
     if 'borrower_id' not in data:
         return jsonify(
             {
                 "error": True,
                 "message": "Must pass borrower id in 'borrower_id'.",
             }
-        )
+        ), 400
 
     book_id = int(data.get('book_id'))
     book_ids = [book.id for book in Book.query.distinct(Book.id).all()]
@@ -643,7 +660,7 @@ def add_borrowed_book():
                 "books_ids": book_ids,
                 "message": "book id must be in books ids.",
             }
-        )
+        ), 400
 
     borrower_id = int(data.get('borrower_id'))
     borrowers_ids = [borrower.id for borrower in Borrower.query.distinct(Borrower.id).all()]
@@ -654,7 +671,7 @@ def add_borrowed_book():
                 "borrowers_ids": borrowers_ids,
                 "message": "borrower id must be in borrowers ids.",
             }
-        )
+        ), 400
 
     new_borrowed_book = BorrowedBooks(
         book_id=book_id,
@@ -691,7 +708,7 @@ def update_borrowed_book(borrowed_book_id):
                 "books_ids": book_ids,
                 "message": "book id must be in books ids.",
             }
-        )
+        ), 400
 
     borrower_id = borrowed_book.borrower_id if data is None else int(data.get('borrower_id'))
     borrowers_ids = [borrower.id for borrower in Borrower.query.distinct(Borrower.id).all()]
@@ -702,7 +719,7 @@ def update_borrowed_book(borrowed_book_id):
                 "borrowers_ids": borrowers_ids,
                 "message": "borrower id must be in borrowers ids.",
             }
-        )
+        ), 400
     borrowed_book.book_id = book_id
     borrowed_book.borrower_id = borrower_id
     try:
@@ -748,13 +765,18 @@ def return_borrowed_book(borrowed_book_id):
 
     borrowed_book = BorrowedBooks.query.get_or_404(borrowed_book_id)
     if 'rating' not in data:
-        return {
-            "error": "Must pass the rating in 'rating'."
-        }
+        return jsonify(
+            {
+                "error": "Must pass the rating in 'rating'."
+            }
+        ), 400
     if not (0 <= data.get('rating') <= 10):
-        return {
-            "error": "Rating must be between 0 and 10"
-        }
+        return jsonify(
+            {
+                "error": "Rating must be between 0 and 10"
+            }
+        ), 400
+
     borrowed_book.returned_at = datetime.datetime.now()
     borrowed_book.rating = data.get('rating')
     try:
@@ -848,4 +870,4 @@ def server_error(error):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', debug=True)
