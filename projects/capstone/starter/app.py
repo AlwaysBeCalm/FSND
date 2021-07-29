@@ -770,7 +770,7 @@ def return_borrowed_book(borrowed_book_id):
                 "error": "Must pass the rating in 'rating'."
             }
         ), 400
-    if not (0 <= data.get('rating') <= 10):
+    if not (0 <= float(data.get('rating')) <= 10):
         return jsonify(
             {
                 "error": "Rating must be between 0 and 10"
