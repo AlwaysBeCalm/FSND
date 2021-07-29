@@ -1,0 +1,2480 @@
+{
+	"info": {
+		"_postman_id": "6cb65323-4505-49e1-8603-f2d5e042d938",
+		"name": "udacity-fsnd-capstone-heroku",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "public",
+			"item": [
+				{
+					"name": "/",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"the greeting of the api and the endpoints\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('object')",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{heroku}}/",
+							"host": [
+								"{{heroku}}"
+							],
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Manager",
+			"item": [
+				{
+					"name": "1- Manipulate Authors",
+					"item": [
+						{
+							"name": "/authors",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"value contains authors array\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.authors).to.be.an('array');",
+											"});",
+											"",
+											"pm.test(\"total authors\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.total).to.be.a('number');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/authors/",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"authors",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/author-details",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404 if the requested author doesn't exists\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"value contains author name\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.name).to.be.a('string');",
+											"});",
+											"",
+											"pm.test(\"number of written books\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    console.log(jsonData);",
+											"    pm.expect(jsonData.number_of_written_books).to.be.a('number');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/authors/1",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"authors",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/author/id/books",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404 if the requested author doesn't exists\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"found the requested author\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"there is a total books\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.total).to.be.a('number');",
+											"});",
+											"",
+											"pm.test(\"got books of current author\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.books).to.be.a('array');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/authors/1/books",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"authors",
+										"1",
+										"books"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/add-author",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401 since no credentials are present\", function () {",
+											"    pm.response.to.have.status(401);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Ahmad\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/authors/",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"authors",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/author/id/update",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401 since no credentials are present\", function () {",
+											"    pm.response.to.have.status(401);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/authors/1/update/",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"authors",
+										"1",
+										"update",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/author/id/delete",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401 since no credentials are present\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Ahmad\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/authors/1/delete/",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"authors",
+										"1",
+										"delete",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "2- Manipulate Categories",
+					"item": [
+						{
+							"name": "/categories",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"there is a total categories\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.total).to.be.a('number');",
+											"});",
+											"",
+											"pm.test(\"got all categories\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.categories).to.be.an('array');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/categories",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"categories"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/category-details",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404 if the requested category doesn't exists\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"value contains the requested category\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.category).to.be.an('object');",
+											"});",
+											"",
+											"pm.test(\"number of books in current category\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    console.log(jsonData);",
+											"    pm.expect(jsonData.category.number_of_books).to.be.a('number');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/categories/1",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"categories",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/category/id/books",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404 if the requested category doesn't exists\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"found the requested category\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"there is a total books\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.total).to.be.a('number');",
+											"});",
+											"",
+											"pm.test(\"got books of current category\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.books).to.be.a('array');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/categories/1/books",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"categories",
+										"1",
+										"books"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/add-category",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"title\":\"Cooking\"}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/categories/",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"categories",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/category/id/update",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/categories/1/update",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"categories",
+										"1",
+										"update"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/category/id/delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/categories/5/delete",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"categories",
+										"5",
+										"delete"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "3- Manipulate Books",
+					"item": [
+						{
+							"name": "/books",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"there is a total books\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.total).to.be.a('number');",
+											"});",
+											"",
+											"pm.test(\"got all books\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.books).to.be.an('array');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/books/",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"books",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/book-details",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404 if the requested book doesn't exists\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"got book\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.book).to.be.an('object');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/books/1",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"books",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/book-borrowers",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404 if the requested book doesn't exists\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"found the requested book\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"there is a total borrowers\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.total_borrowers).to.be.a('number');",
+											"});",
+											"",
+											"pm.test(\"got borroweres of current book\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.borrowers).to.be.a('array');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/books/1/borrowers",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"books",
+										"1",
+										"borrowers"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/add-book",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"title\":\"Universe\", \"pages\":50, \"about\":\"talks about Universe.\", \"author_id\":1, \"category_id\":2}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/books/",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"books",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/book/id/update",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401 since no credentials are present\", function () {",
+											"    pm.response.to.have.status(401);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"category_id\": 1}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/books/1/update",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"books",
+										"1",
+										"update"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/book/id/delete",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401 since no credentials are present\", function () {",
+											"    pm.response.to.have.status(401);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Ahmad\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/books/10/delete",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"books",
+										"10",
+										"delete"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "4- Manipulate Borrowers",
+					"item": [
+						{
+							"name": "/borrowers",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"there is a total borrowers\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.total).to.be.a('number');",
+											"});",
+											"",
+											"pm.test(\"got all borrowers\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.borrowers).to.be.an('array');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/borrowers",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"borrowers"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/borrower-details",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404 if the requested borrower doesn't exists\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"value contains the requested borrower\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.borrower).to.be.an('object');",
+											"});",
+											"",
+											"pm.test(\"number of books in the current borrower has borrwoed\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    console.log(jsonData);",
+											"    pm.expect(jsonData.borrower.number_of_borrowed_books).to.be.a('number');",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/borrowers/1",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"borrowers",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/borrower/id/books",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404 if the requested category doesn't exists\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"found the requested borrower\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"there is a total books\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.total).to.be.a('number');",
+											"});",
+											"",
+											"pm.test(\"got books of current category\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.books).to.be.a('array');",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/borrowers/1/books",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"borrowers",
+										"1",
+										"books"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/add-borrower",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"name\":\"Ali\"}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/borrowers",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"borrowers"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/borrower/id/update",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"name\":\"Abdullah\"}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/borrowers/1/update",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"borrowers",
+										"1",
+										"update"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/borrower/id/delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"name\":\"Abdullah\"}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/borrowers",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"borrowers"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "5- Manipulate Borrowing operations",
+					"item": [
+						{
+							"name": "/borrowed-books",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"name\":\"Abdullah\"}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/borrowed_books/",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"borrowed_books",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/borrowed-book-details",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404 if the requested borrowed book doesn't exists\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"value contains borrowed book object\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.borrowed_book).to.be.an('object');",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"name\":\"Abdullah\"}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/borrowed_books/1",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"borrowed_books",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/add-borrowed-book",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"name\":\"Abdullah\"}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/borrowers",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"borrowers"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/borrowed-book/id/update",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"book_id\": 1, \"borrower_id\": 3}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/borrowed_books/2/update",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"borrowed_books",
+										"2",
+										"update"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/borrowed-book/id/return",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"rating\":1}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/borrowed_books/3/return",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"borrowed_books",
+										"3",
+										"return"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/borrowed-book/id/delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"name\":\"Abdullah\"}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/borrowers",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"borrowers"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{manager_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Author",
+			"item": [
+				{
+					"name": "Authors",
+					"item": [
+						{
+							"name": "/authors",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"value contains authors array\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.authors).to.be.an('array');",
+											"});",
+											"",
+											"pm.test(\"total authors\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.total).to.be.a('number');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/authors/",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"authors",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/author-details",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404 if the requested author doesn't exists\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"value contains author name\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.name).to.be.a('string');",
+											"});",
+											"",
+											"pm.test(\"number of written books\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    console.log(jsonData);",
+											"    pm.expect(jsonData.number_of_written_books).to.be.a('number');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/authors/1",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"authors",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/author/id/books",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404 if the requested author doesn't exists\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"found the requested author\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"there is a total books\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.total).to.be.a('number');",
+											"});",
+											"",
+											"pm.test(\"got books of current author\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.books).to.be.a('array');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/authors/1/books",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"authors",
+										"1",
+										"books"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/author/id/update",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401 since no credentials are present\", function () {",
+											"    pm.response.to.have.status(401);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/authors/1/update/",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"authors",
+										"1",
+										"update",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Books",
+					"item": [
+						{
+							"name": "/books",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"there is a total books\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.total).to.be.a('number');",
+											"});",
+											"",
+											"pm.test(\"got all books\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.books).to.be.an('array');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/books/",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"books",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/book-details",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404 if the requested book doesn't exists\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"got book\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.book).to.be.an('object');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/books/1",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"books",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/book-borrowers",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404 if the requested book doesn't exists\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"found the requested book\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"there is a total borrowers\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.total_borrowers).to.be.a('number');",
+											"});",
+											"",
+											"pm.test(\"got borroweres of current book\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.borrowers).to.be.a('array');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/books/1/borrowers",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"books",
+										"1",
+										"borrowers"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/add-book",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"title\":\"Java\", \"pages\":50, \"about\":\"talks about Java.\", \"author_id\":1, \"category_id\":1}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/books/",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"books",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/book/id/update",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401 since no credentials are present\", function () {",
+											"    pm.response.to.have.status(401);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/books/1/update",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"books",
+										"1",
+										"update"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/book/id/delete",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401 since no credentials are present\", function () {",
+											"    pm.response.to.have.status(401);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Ahmad\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/books/10/delete",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"books",
+										"10",
+										"delete"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Categories",
+					"item": [
+						{
+							"name": "/categories",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401 since no credentials are present\", function () {",
+											"    pm.response.to.have.status(401);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/categories",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"categories"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/category-details",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"got current category\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.category).to.be.an('object');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/categories/1",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"categories",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/category/id/books",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404 if the requested category doesn't exists\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"there is a total books\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.total).to.be.a('number');",
+											"});",
+											"",
+											"pm.test(\"got books of current category\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.books).to.be.a('array');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/categories/1/books",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"categories",
+										"1",
+										"books"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Borrowers",
+					"item": [
+						{
+							"name": "/borrower-books",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"this should pass if the requested borrower is not found\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"got the borrowed books of the requested borrower \", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.books).to.be.an('object');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/borrowers/11/books",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"borrowers",
+										"11",
+										"books"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/borrower/id/update",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"name\":\"Abdullah\"}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/borrowers/1/update",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"borrowers",
+										"1",
+										"update"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Borrowed-Books",
+					"item": [
+						{
+							"name": "/add-borrowed-book",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"name\":\"Abdullah\"}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/borrowers",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"borrowers"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/borrowed-book/id/return",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"rating\":1}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/borrowed_books/3/return",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"borrowed_books",
+										"3",
+										"return"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{author_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Borrower",
+			"item": [
+				{
+					"name": "Authors",
+					"item": [
+						{
+							"name": "/authors",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"value contains authors array\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.authors).to.be.an('array');",
+											"});",
+											"",
+											"pm.test(\"total authors\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.total).to.be.a('number');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/authors/",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"authors",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/author-details",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404 if the requested author doesn't exists\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"value contains author name\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.name).to.be.a('string');",
+											"});",
+											"",
+											"pm.test(\"number of written books\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    console.log(jsonData);",
+											"    pm.expect(jsonData.number_of_written_books).to.be.a('number');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/authors/1",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"authors",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/author/id/books",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404 if the requested author doesn't exists\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"found the requested author\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"there is a total books\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.total).to.be.a('number');",
+											"});",
+											"",
+											"pm.test(\"got books of current author\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.books).to.be.a('array');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/authors/1/books",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"authors",
+										"1",
+										"books"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Categories",
+					"item": [
+						{
+							"name": "/categories",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401 since no credentials are present\", function () {",
+											"    pm.response.to.have.status(401);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/categories",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"categories"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/category-details",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"got current category\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.category).to.be.an('object');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/categories/1",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"categories",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/category/id/books",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404 if the requested category doesn't exists\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"there is a total books\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.total).to.be.a('number');",
+											"});",
+											"",
+											"pm.test(\"got books of current category\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.books).to.be.a('array');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/categories/1/books",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"categories",
+										"1",
+										"books"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Books",
+					"item": [
+						{
+							"name": "/books",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"there is a total books\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.total).to.be.a('number');",
+											"});",
+											"",
+											"pm.test(\"got all books\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.books).to.be.an('array');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/books/",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"books",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/book-details",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404 if the requested book doesn't exists\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"got book\", function(){",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.book).to.be.an('object');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{heroku}}/books/1",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"books",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Borrowers",
+					"item": [
+						{
+							"name": "/borrower/id/update",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"name\":\"Abdullah\"}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/borrowers/1/update",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"borrowers",
+										"1",
+										"update"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Borrowed-Books",
+					"item": [
+						{
+							"name": "/add-borrowed-book",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"name\":\"Abdullah\"}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/borrowers",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"borrowers"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/borrowed-book/id/return",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"rating\":1}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/borrowed_books/3/return",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"borrowed_books",
+										"3",
+										"return"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{borrower_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "heroku",
+			"value": "https://fsnd-library-api.herokuapp.com/"
+		},
+		{
+			"key": "manager_token",
+			"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImtWd2RfY0lVanlRdThjSml4MzBwYiJ9.eyJpc3MiOiJodHRwczovL2ZzbmQtcHl0aG9uLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJnb29nbGUtb2F1dGgyfDExMzg4OTQ5MDc1ODE5Mzc4Njg2NiIsImF1ZCI6ImxpYnJhcnkiLCJpYXQiOjE2Mjc0OTM2ODcsImV4cCI6MTYyNzU4MDA4NywiYXpwIjoiWjlCV1pjOXF3RTFZOThDRzIyc1pFd1daUjliODZJb0wiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImFkZDphdXRob3IiLCJhZGQ6Ym9vayIsImFkZDpib3Jyb3dlZF9ib29rIiwiYWRkOmJvcnJvd2VyIiwiYWRkOmNhdGVnb3J5IiwiZGVsZXRlOmF1dGhvciIsImRlbGV0ZTpib29rIiwiZGVsZXRlOmJvcnJvd2VkX2Jvb2siLCJkZWxldGU6Ym9ycm93ZXIiLCJkZWxldGU6Y2F0ZWdvcnkiLCJnZXQ6YXV0aG9yIiwiZ2V0OmF1dGhvci1ib29rcyIsImdldDphdXRob3JzIiwiZ2V0OmJvb2siLCJnZXQ6Ym9vay1ib3Jyb3dlcnMiLCJnZXQ6Ym9va3MiLCJnZXQ6Ym9ycm93ZWRfYm9vayIsImdldDpib3Jyb3dlZF9ib29rcyIsImdldDpib3Jyb3dlciIsImdldDpib3Jyb3dlci1ib29rcyIsImdldDpib3Jyb3dlcnMiLCJnZXQ6Y2F0ZWdvcmllcyIsImdldDpjYXRlZ29yeSIsImdldDpjYXRlZ29yeS1ib29rcyIsInVwZGF0ZTphdXRob3IiLCJ1cGRhdGU6Ym9vayIsInVwZGF0ZTpib3Jyb3dlZF9ib29rIiwidXBkYXRlOmJvcnJvd2VyIiwidXBkYXRlOmNhdGVnb3J5Il19.ZWySZ2jmhIDQk0SzZsfQhnI2ftC_cIuhW8pkZBNUGIHMbg_oF3a-UVZzXjnXVBiLc5dGYKzkFEue88hGVtsFB05754V47j8pXgdWLcIaoCXKTiePz350BZnkm7PYwuWHaUBSDvGbetM-RDX_2PGOuzcR_GjuEjLLWFxSyCN8DGPrZawOtNuJZkb90TuVZd67Jto348hzbO6yG8W64T6I5ksfa0wDbyutXxbOi7h_BGFS8BXyGENMG2K0et7i-P2ecm9KdYIOuH10eFh9XLcKy8m7_oDbtckDO5ilIHbR3f_eIxfmmh9vvLfmRjP-GLUueHm8_pdwYWUHqNVH9AQroQ"
+		},
+		{
+			"key": "borrower_token",
+			"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImtWd2RfY0lVanlRdThjSml4MzBwYiJ9.eyJpc3MiOiJodHRwczovL2ZzbmQtcHl0aG9uLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw2MGZmZjNiODBkZGUwMTAwNjg5MTFjMTQiLCJhdWQiOiJsaWJyYXJ5IiwiaWF0IjoxNjI3NTM5MTY5LCJleHAiOjE2Mjc2MjU1NjksImF6cCI6Ilo5QldaYzlxd0UxWTk4Q0cyMnNaRXdXWlI5Yjg2SW9MIiwic2NvcGUiOiIiLCJwZXJtaXNzaW9ucyI6WyJhZGQ6Ym9ycm93ZWRfYm9vayIsImdldDphdXRob3IiLCJnZXQ6YXV0aG9yLWJvb2tzIiwiZ2V0OmF1dGhvcnMiLCJnZXQ6Ym9vayIsImdldDpib29rcyIsImdldDpjYXRlZ29yaWVzIiwiZ2V0OmNhdGVnb3J5IiwiZ2V0OmNhdGVnb3J5LWJvb2tzIiwidXBkYXRlOmJvcnJvd2VkX2Jvb2siLCJ1cGRhdGU6Ym9ycm93ZXIiXX0.g334fvxoRzxM8p2tSI9JlufGz6M6_JS2lKtV8zVNSK6bcvGqbYxTRalrlbHc8nhNkdR0b4WlQPF0Al57x9VELtyn1MVymSBREDISJ76-NV8QGmC46DYGMcnh85cf_tlskvTv8VSjPhNiBm3QQCQ5KsNrao4E6LRqmCmVR_raNx0qhl8OoQkCqVur5AhQwKTuza2kfSb5rZZA3MrffXwRrqDq2_6gudJbUjHHljuSAjaODm1c2ly1NWJPw3weCeZz2JMogWVg3LbROAk5Y_xsuatS4sK4Ks02dyC9rAz6KdrKhnwcoKn7Evj2zjUnUVbV3KJiwJ1Qzc6TBnahR-iF2g"
+		},
+		{
+			"key": "author_token",
+			"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImtWd2RfY0lVanlRdThjSml4MzBwYiJ9.eyJpc3MiOiJodHRwczovL2ZzbmQtcHl0aG9uLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw2MGU4NzY0ZWE4NTIyYTAwNjkxMjg1OTIiLCJhdWQiOiJsaWJyYXJ5IiwiaWF0IjoxNjI3NTQzNzIyLCJleHAiOjE2Mjc2MzAxMjIsImF6cCI6Ilo5QldaYzlxd0UxWTk4Q0cyMnNaRXdXWlI5Yjg2SW9MIiwic2NvcGUiOiIiLCJwZXJtaXNzaW9ucyI6WyJhZGQ6Ym9vayIsImFkZDpib3Jyb3dlZF9ib29rIiwiZGVsZXRlOmJvb2siLCJnZXQ6YXV0aG9yIiwiZ2V0OmF1dGhvci1ib29rcyIsImdldDphdXRob3JzIiwiZ2V0OmJvb2siLCJnZXQ6Ym9vay1ib3Jyb3dlcnMiLCJnZXQ6Ym9va3MiLCJnZXQ6Ym9ycm93ZXItYm9va3MiLCJnZXQ6Y2F0ZWdvcmllcyIsImdldDpjYXRlZ29yeSIsImdldDpjYXRlZ29yeS1ib29rcyIsInVwZGF0ZTphdXRob3IiLCJ1cGRhdGU6Ym9vayIsInVwZGF0ZTpib3Jyb3dlZF9ib29rIiwidXBkYXRlOmJvcnJvd2VyIl19.htjvNVOx2vsWzrTABbYFwHR2vqmRAV5ZtyrzHtCpIj3Eeof0xemslC4G2hcr-p6sl55BCX1itRXLq-zTG5B8taOQ2elSZGWephYFlpdKjjMtDF6XhiYs49J-thwxcIPPvpn76Exz8OL2UDwjR1kM3nTxWBomM4fMsMm4_VW1TuvbPEVSnlCw8q1RWmnjuAf6Kk521LNAkdVDJPnae55vGLCJtzplfm3xyoXTQ8qlygxow3coEZsVkoejpRLr3q3QVHSxtDEA6Yonvw-h5XxKBn6uhlkIi4tXLT1wRVgzOc8K1YxQqYfM0vAlPKmxvUUTX2RpIrec8Jf7drF9Wk6lnA"
+		}
+	]
+}
