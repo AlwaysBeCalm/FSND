@@ -1,0 +1,427 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 13.3 (Ubuntu 13.3-1.pgdg20.04+1)
+-- Dumped by pg_dump version 13.3 (Ubuntu 13.3-1.pgdg20.04+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: Author; Type: TABLE; Schema: public; Owner: abdullah
+--
+
+CREATE TABLE public."Author" (
+    id integer NOT NULL,
+    name character varying NOT NULL
+);
+
+
+ALTER TABLE public."Author" OWNER TO abdullah;
+
+--
+-- Name: Author_id_seq; Type: SEQUENCE; Schema: public; Owner: abdullah
+--
+
+CREATE SEQUENCE public."Author_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."Author_id_seq" OWNER TO abdullah;
+
+--
+-- Name: Author_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: abdullah
+--
+
+ALTER SEQUENCE public."Author_id_seq" OWNED BY public."Author".id;
+
+
+--
+-- Name: Book; Type: TABLE; Schema: public; Owner: abdullah
+--
+
+CREATE TABLE public."Book" (
+    id integer NOT NULL,
+    title character varying(50) NOT NULL,
+    pages integer NOT NULL,
+    about character varying(255) NOT NULL,
+    author_id integer,
+    category_id integer
+);
+
+
+ALTER TABLE public."Book" OWNER TO abdullah;
+
+--
+-- Name: Book_id_seq; Type: SEQUENCE; Schema: public; Owner: abdullah
+--
+
+CREATE SEQUENCE public."Book_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."Book_id_seq" OWNER TO abdullah;
+
+--
+-- Name: Book_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: abdullah
+--
+
+ALTER SEQUENCE public."Book_id_seq" OWNED BY public."Book".id;
+
+
+--
+-- Name: Borrower; Type: TABLE; Schema: public; Owner: abdullah
+--
+
+CREATE TABLE public."Borrower" (
+    id integer NOT NULL,
+    name character varying(50) NOT NULL
+);
+
+
+ALTER TABLE public."Borrower" OWNER TO abdullah;
+
+--
+-- Name: Borrower_id_seq; Type: SEQUENCE; Schema: public; Owner: abdullah
+--
+
+CREATE SEQUENCE public."Borrower_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."Borrower_id_seq" OWNER TO abdullah;
+
+--
+-- Name: Borrower_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: abdullah
+--
+
+ALTER SEQUENCE public."Borrower_id_seq" OWNED BY public."Borrower".id;
+
+
+--
+-- Name: Category; Type: TABLE; Schema: public; Owner: abdullah
+--
+
+CREATE TABLE public."Category" (
+    id integer NOT NULL,
+    title character varying NOT NULL
+);
+
+
+ALTER TABLE public."Category" OWNER TO abdullah;
+
+--
+-- Name: Category_id_seq; Type: SEQUENCE; Schema: public; Owner: abdullah
+--
+
+CREATE SEQUENCE public."Category_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."Category_id_seq" OWNER TO abdullah;
+
+--
+-- Name: Category_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: abdullah
+--
+
+ALTER SEQUENCE public."Category_id_seq" OWNED BY public."Category".id;
+
+
+--
+-- Name: alembic_version; Type: TABLE; Schema: public; Owner: abdullah
+--
+
+CREATE TABLE public.alembic_version (
+    version_num character varying(32) NOT NULL
+);
+
+
+ALTER TABLE public.alembic_version OWNER TO abdullah;
+
+--
+-- Name: borrowed_books; Type: TABLE; Schema: public; Owner: abdullah
+--
+
+CREATE TABLE public.borrowed_books (
+    id integer NOT NULL,
+    book_id integer,
+    borrower_id integer,
+    borrowed_at timestamp without time zone,
+    returned_at timestamp without time zone,
+    rating double precision
+);
+
+
+ALTER TABLE public.borrowed_books OWNER TO abdullah;
+
+--
+-- Name: borrowed_books_id_seq; Type: SEQUENCE; Schema: public; Owner: abdullah
+--
+
+CREATE SEQUENCE public.borrowed_books_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.borrowed_books_id_seq OWNER TO abdullah;
+
+--
+-- Name: borrowed_books_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: abdullah
+--
+
+ALTER SEQUENCE public.borrowed_books_id_seq OWNED BY public.borrowed_books.id;
+
+
+--
+-- Name: Author id; Type: DEFAULT; Schema: public; Owner: abdullah
+--
+
+ALTER TABLE ONLY public."Author" ALTER COLUMN id SET DEFAULT nextval('public."Author_id_seq"'::regclass);
+
+
+--
+-- Name: Book id; Type: DEFAULT; Schema: public; Owner: abdullah
+--
+
+ALTER TABLE ONLY public."Book" ALTER COLUMN id SET DEFAULT nextval('public."Book_id_seq"'::regclass);
+
+
+--
+-- Name: Borrower id; Type: DEFAULT; Schema: public; Owner: abdullah
+--
+
+ALTER TABLE ONLY public."Borrower" ALTER COLUMN id SET DEFAULT nextval('public."Borrower_id_seq"'::regclass);
+
+
+--
+-- Name: Category id; Type: DEFAULT; Schema: public; Owner: abdullah
+--
+
+ALTER TABLE ONLY public."Category" ALTER COLUMN id SET DEFAULT nextval('public."Category_id_seq"'::regclass);
+
+
+--
+-- Name: borrowed_books id; Type: DEFAULT; Schema: public; Owner: abdullah
+--
+
+ALTER TABLE ONLY public.borrowed_books ALTER COLUMN id SET DEFAULT nextval('public.borrowed_books_id_seq'::regclass);
+
+
+--
+-- Data for Name: Author; Type: TABLE DATA; Schema: public; Owner: abdullah
+--
+
+COPY public."Author" (id, name) FROM stdin;
+1	Abdullah
+\.
+
+
+--
+-- Data for Name: Book; Type: TABLE DATA; Schema: public; Owner: abdullah
+--
+
+COPY public."Book" (id, title, pages, about, author_id, category_id) FROM stdin;
+1	Java	60	How to program in Java	1	1
+\.
+
+
+--
+-- Data for Name: Borrower; Type: TABLE DATA; Schema: public; Owner: abdullah
+--
+
+COPY public."Borrower" (id, name) FROM stdin;
+1	Nasser
+\.
+
+
+--
+-- Data for Name: Category; Type: TABLE DATA; Schema: public; Owner: abdullah
+--
+
+COPY public."Category" (id, title) FROM stdin;
+1	Programming
+\.
+
+
+--
+-- Data for Name: alembic_version; Type: TABLE DATA; Schema: public; Owner: abdullah
+--
+
+COPY public.alembic_version (version_num) FROM stdin;
+658bcb5396c2
+\.
+
+
+--
+-- Data for Name: borrowed_books; Type: TABLE DATA; Schema: public; Owner: abdullah
+--
+
+COPY public.borrowed_books (id, book_id, borrower_id, borrowed_at, returned_at, rating) FROM stdin;
+1	1	1	2021-07-29 11:19:00.088863	\N	0
+\.
+
+
+--
+-- Name: Author_id_seq; Type: SEQUENCE SET; Schema: public; Owner: abdullah
+--
+
+SELECT pg_catalog.setval('public."Author_id_seq"', 1, true);
+
+
+--
+-- Name: Book_id_seq; Type: SEQUENCE SET; Schema: public; Owner: abdullah
+--
+
+SELECT pg_catalog.setval('public."Book_id_seq"', 1, true);
+
+
+--
+-- Name: Borrower_id_seq; Type: SEQUENCE SET; Schema: public; Owner: abdullah
+--
+
+SELECT pg_catalog.setval('public."Borrower_id_seq"', 1, true);
+
+
+--
+-- Name: Category_id_seq; Type: SEQUENCE SET; Schema: public; Owner: abdullah
+--
+
+SELECT pg_catalog.setval('public."Category_id_seq"', 1, true);
+
+
+--
+-- Name: borrowed_books_id_seq; Type: SEQUENCE SET; Schema: public; Owner: abdullah
+--
+
+SELECT pg_catalog.setval('public.borrowed_books_id_seq', 1, true);
+
+
+--
+-- Name: Author Author_pkey; Type: CONSTRAINT; Schema: public; Owner: abdullah
+--
+
+ALTER TABLE ONLY public."Author"
+    ADD CONSTRAINT "Author_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Book Book_pkey; Type: CONSTRAINT; Schema: public; Owner: abdullah
+--
+
+ALTER TABLE ONLY public."Book"
+    ADD CONSTRAINT "Book_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Borrower Borrower_pkey; Type: CONSTRAINT; Schema: public; Owner: abdullah
+--
+
+ALTER TABLE ONLY public."Borrower"
+    ADD CONSTRAINT "Borrower_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Category Category_pkey; Type: CONSTRAINT; Schema: public; Owner: abdullah
+--
+
+ALTER TABLE ONLY public."Category"
+    ADD CONSTRAINT "Category_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Category Category_title_key; Type: CONSTRAINT; Schema: public; Owner: abdullah
+--
+
+ALTER TABLE ONLY public."Category"
+    ADD CONSTRAINT "Category_title_key" UNIQUE (title);
+
+
+--
+-- Name: alembic_version alembic_version_pkc; Type: CONSTRAINT; Schema: public; Owner: abdullah
+--
+
+ALTER TABLE ONLY public.alembic_version
+    ADD CONSTRAINT alembic_version_pkc PRIMARY KEY (version_num);
+
+
+--
+-- Name: borrowed_books borrowed_books_pkey; Type: CONSTRAINT; Schema: public; Owner: abdullah
+--
+
+ALTER TABLE ONLY public.borrowed_books
+    ADD CONSTRAINT borrowed_books_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: Book Book_author_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: abdullah
+--
+
+ALTER TABLE ONLY public."Book"
+    ADD CONSTRAINT "Book_author_id_fkey" FOREIGN KEY (author_id) REFERENCES public."Author"(id) ON DELETE CASCADE;
+
+
+--
+-- Name: Book Book_category_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: abdullah
+--
+
+ALTER TABLE ONLY public."Book"
+    ADD CONSTRAINT "Book_category_id_fkey" FOREIGN KEY (category_id) REFERENCES public."Category"(id) ON DELETE CASCADE;
+
+
+--
+-- Name: borrowed_books borrowed_books_book_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: abdullah
+--
+
+ALTER TABLE ONLY public.borrowed_books
+    ADD CONSTRAINT borrowed_books_book_id_fkey FOREIGN KEY (book_id) REFERENCES public."Book"(id) ON DELETE CASCADE;
+
+
+--
+-- Name: borrowed_books borrowed_books_borrower_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: abdullah
+--
+
+ALTER TABLE ONLY public.borrowed_books
+    ADD CONSTRAINT borrowed_books_borrower_id_fkey FOREIGN KEY (borrower_id) REFERENCES public."Borrower"(id) ON DELETE CASCADE;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
