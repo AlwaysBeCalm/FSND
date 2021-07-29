@@ -3,29 +3,32 @@ from flask_cors import CORS
 
 from auth import requires_auth
 from models import *
-from settings import setup_db, drop_all_create_all_add_record
+from settings import setup_db
 
 
 def create_app():
     # create and configure the app
-    app = Flask(__name__)
-    app.url_map.strict_slashes = False
-    setup_db(app)
+    returned_app = Flask(__name__)
+    returned_app.url_map.strict_slashes = False
+    setup_db(returned_app)
 
     # the next method will drop all the tables and recreates them and insert a single row in every table.
     # IMPORTANT: RUN ONCE OR ELSE ALL THE DATA WILL BE LOST WHEN RUNNING THE APP AGAIN
     # drop_all_create_all_add_record()
 
-    app.app_context().push()
-    CORS(app, resources={r"*": {"origins": '*'}})
+    returned_app.app_context().push()
+    CORS(returned_app, resources={r"*": {"origins": '*'}})
 
-    @app.after_request
+    @returned_app.after_request
     def after_request(response):
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
-        response.headers.add('Access-Control-Allow-Methods', 'GET, PATCH, POST, DELETE, OPTIONS')
+        response.headers.add('Access-Control-Allow-Headers',
+                             'Content-Type,Authorization,true')
+        response.headers.add('Access-Control-Allow-Methods',
+                             'GET, PATCH, POST, DELETE, OPTIONS')
         return response
 
-    return app
+    return returned_app
+
 
 app = create_app()
 
@@ -40,7 +43,8 @@ def index():
             "4- /categories": "to add a new category, get a category/all categories or delete a category.",
             "5- /book": "to add a new book, get a book/all books or delete a book.",
             "6- /borrower": "to add a new borrower, get a borrower/all borrowers or delete a borrower.",
-            "7- /borrowed_books": "to add a new borrowed book, get a borrowed book/all borrowed books or delete a borrowed book.",
+            "7- /borrowed_books":
+                "to add a new borrowed book, get a borrowed book/all borrowed books or delete a borrowed book.",
         }
     )
 
@@ -58,10 +62,10 @@ PER_PAGE = 10
 def authors():
     page = request.args.get('page', 1, int)
     per_page = request.args.get('per_page', PER_PAGE, int)
-    authors = Author.query.paginate(page=page, per_page=per_page).items
+    all_authors = Author.query.paginate(page=page, per_page=per_page).items
     return jsonify(
         {
-            "authors": [author.format() for author in authors],
+            "authors": [single_author.format() for single_author in all_authors],
             "total": len(Author.query.all()),
         }
     )
@@ -70,9 +74,9 @@ def authors():
 @app.route('/authors/<int:author_id>/', methods=['GET', ])
 @requires_auth('get:author')
 def author(author_id):
-    author = Author.query.get_or_404(author_id)
+    requested_author = Author.query.get_or_404(author_id)
     return jsonify(
-        author.format()
+        requested_author.format()
     )
 
 
@@ -107,10 +111,11 @@ def add_author():
 @requires_auth('update:author')
 def update_author(author_id):
     data = request.get_json()
-    author = Author.query.get_or_404(author_id)
-    author.name = author.name if data is None else data.get('name', author.name)
+    requested_author = Author.query.get_or_404(author_id)
+    requested_author.name = requested_author.name if data is None else data.get(
+        'name', requested_author.name)
     try:
-        author.update()
+        requested_author.update()
         return jsonify(
             {
                 "success": True,
@@ -127,9 +132,9 @@ def update_author(author_id):
 @app.route('/authors/<int:author_id>/delete/', methods=['DELETE', ])
 @requires_auth('delete:author')
 def delete_author(author_id):
-    author = Author.query.get_or_404(author_id)
+    requested_author = Author.query.get_or_404(author_id)
     try:
-        author.delete()
+        requested_author.delete()
         return jsonify(
             {
                 "success": True,
@@ -148,13 +153,13 @@ def delete_author(author_id):
 @requires_auth('get:author-books')
 def author_books(author_id):
     Author.query.get_or_404(author_id)
-    books = Book.query.filter(Book.author_id == author_id).all()
+    all_books = Book.query.filter(Book.author_id == author_id).all()
     try:
         return jsonify(
             {
                 "success": True,
-                "books": [book.format() for book in books],
-                "total": len(books)
+                "books": [single_book.format() for single_book in all_books],
+                "total": len(all_books)
             }
         )
     except:
@@ -173,10 +178,10 @@ def author_books(author_id):
 def categories():
     page = request.args.get('page', 1, int)
     per_page = request.args.get('per_page', PER_PAGE, int)
-    categories = Category.query.paginate(page=page, per_page=per_page).items
+    all_categories = Category.query.paginate(page=page, per_page=per_page).items
     return jsonify(
         {
-            "categories": [category.format() for category in categories],
+            "categories": [single_category.format() for single_category in all_categories],
             "total": len(Category.query.all())
         }
     )
@@ -185,10 +190,10 @@ def categories():
 @app.route('/categories/<int:category_id>/', methods=['GET', ])
 @requires_auth('get:category')
 def category(category_id):
-    category = Category.query.get_or_404(category_id)
+    requested_category = Category.query.get_or_404(category_id)
     return jsonify(
         {
-            "category": category.format(),
+            "category": requested_category.format(),
             "success": True,
         }
     )
@@ -225,10 +230,11 @@ def add_category():
 @requires_auth('update:category')
 def update_category(category_id):
     data = request.get_json()
-    category = Category.query.get_or_404(category_id)
-    category.title = category.title if data is None else data.get('title', category.title)
+    requested_category = Category.query.get_or_404(category_id)
+    requested_category.title = requested_category.title if data is None else data.get(
+        'title', requested_category.title)
     try:
-        category.update()
+        requested_category.update()
         return jsonify(
             {
                 "success": True,
@@ -245,9 +251,9 @@ def update_category(category_id):
 @app.route('/categories/<int:category_id>/delete/', methods=['DELETE', ])
 @requires_auth('delete:category')
 def delete_category(category_id):
-    category = Category.query.get_or_404(category_id)
+    requested_category = Category.query.get_or_404(category_id)
     try:
-        category.delete()
+        requested_category.delete()
         return jsonify(
             {
                 "success": True,
@@ -266,13 +272,13 @@ def delete_category(category_id):
 @requires_auth('get:category-books')
 def category_books(category_id):
     Category.query.get_or_404(category_id)
-    books = Book.query.filter(Book.category_id == category_id).all()
+    books_of_category = Book.query.filter(Book.category_id == category_id).all()
     try:
         return jsonify(
             {
                 "success": True,
-                "books": [book.format() for book in books],
-                "total": len(books)
+                "books": [single_book.format() for single_book in books_of_category],
+                "total": len(books_of_category)
             }
         )
     except:
@@ -291,10 +297,10 @@ def category_books(category_id):
 def books():
     page = request.args.get('page', 1, int)
     per_page = request.args.get('per_page', PER_PAGE, int)
-    books = Book.query.paginate(page=page, per_page=per_page).items
+    all_books = Book.query.paginate(page=page, per_page=per_page).items
     return jsonify(
         {
-            "books": [book.format() for book in books],
+            "books": [single_book.format() for single_book in all_books],
             "total": len(Book.query.all())
         }
     )
@@ -303,10 +309,10 @@ def books():
 @app.route('/books/<int:book_id>/', methods=['GET', ])
 @requires_auth('get:book')
 def book(book_id):
-    book = Book.query.get_or_404(book_id)
+    requested_book = Book.query.get_or_404(book_id)
     return jsonify(
         {
-            "book": book.format(),
+            "book": requested_book.format(),
             "success": True,
         }
     )
@@ -348,7 +354,8 @@ def add_book():
         ), 400
     book_author = int(data.get('author_id'))
 
-    author_ids = [author.id for author in Author.query.distinct(Author.id).all()]
+    author_ids = [
+        single_author.id for single_author in Author.query.distinct(Author.id).all()]
     if book_author not in author_ids:
         return jsonify(
             {
@@ -366,7 +373,8 @@ def add_book():
         ), 400
     book_category = int(data.get('category_id'))
 
-    category_ids = [category.id for category in Category.query.distinct(Category.id).all()]
+    category_ids = [
+        single_category.id for single_category in Category.query.distinct(Category.id).all()]
     if book_category not in category_ids:
         return jsonify(
             {
@@ -402,15 +410,20 @@ def add_book():
 @requires_auth('update:book')
 def update_book(book_id):
     data = request.get_json()
-    book = Book.query.get_or_404(book_id)
+    requested_book = Book.query.get_or_404(book_id)
 
     try:
-        book.title = book.title if data is None else data.get('title', book.title)
-        book.pages = book.pages if data is None else data.get('pages', book.pages)
-        book.about = book.about if data is None else data.get('about', book.about)
+        requested_book.title = requested_book.title if data is None else data.get(
+            'title', requested_book.title)
+        requested_book.pages = requested_book.pages if data is None else data.get(
+            'pages', requested_book.pages)
+        requested_book.about = requested_book.about if data is None else data.get(
+            'about', requested_book.about)
 
-        author_ids = [author.id for author in Author.query.distinct(Author.id).all()]
-        book_author = book.author_id if data is None else data.get('author_id', book.author_id)
+        author_ids = [
+            single_author.id for single_author in Author.query.distinct(Author.id).all()]
+        book_author = requested_book.author_id if data is None else data.get(
+            'author_id', requested_book.author_id)
         if book_author not in author_ids:
             return jsonify(
                 {
@@ -420,8 +433,10 @@ def update_book(book_id):
                 }
             ), 400
 
-        book_category = book.category_id if data is None else data.get('category_id', book.category_id)
-        category_ids = [category.id for category in Category.query.distinct(Category.id).all()]
+        book_category = requested_book.category_id if data is None else data.get(
+            'category_id', requested_book.category_id)
+        category_ids = [
+            single_category.id for single_category in Category.query.distinct(Category.id).all()]
         if book_category not in category_ids:
             return jsonify(
                 {
@@ -431,9 +446,9 @@ def update_book(book_id):
                 }
             ), 400
 
-        book.author = Author.query.get_or_404(book_author)
-        book.category = Category.query.get_or_404(book_category)
-        book.update()
+        requested_book.author = Author.query.get_or_404(book_author)
+        requested_book.category = Category.query.get_or_404(book_category)
+        requested_book.update()
         return jsonify(
             {
                 "success": True,
@@ -450,9 +465,9 @@ def update_book(book_id):
 @app.route('/books/<int:book_id>/delete/', methods=['DELETE', ])
 @requires_auth('delete:book')
 def delete_book(book_id):
-    book = Book.query.get_or_404(book_id)
+    requested_book = Book.query.get_or_404(book_id)
     try:
-        book.delete()
+        requested_book.delete()
         return jsonify(
             {
                 "success": True,
@@ -470,12 +485,13 @@ def delete_book(book_id):
 @app.route('/books/<int:book_id>/borrowers/', methods=['GET', ])
 @requires_auth('get:book-borrowers')
 def book_borrowers(book_id):
-    borrowers = Borrower.query.join(BorrowedBooks).filter(BorrowedBooks.book_id == book_id).all()
+    borrowers_of_book = Borrower.query.join(BorrowedBooks).filter(
+        BorrowedBooks.book_id == book_id).all()
     try:
         return jsonify(
             {
-                "total_borrowers": len(borrowers),
-                "borrowers": [borrower.format() for borrower in borrowers],
+                "total_borrowers": len(borrowers_of_book),
+                "borrowers": [single_borrower.format() for single_borrower in borrowers_of_book],
                 "success": True,
             }
         )
@@ -483,6 +499,7 @@ def book_borrowers(book_id):
         abort(422)
     finally:
         db.session.close()
+
 
 ###################################################################
 # BORROWERS ENDPOINTS
@@ -494,10 +511,10 @@ def book_borrowers(book_id):
 def borrowers():
     page = request.args.get('page', 1, int)
     per_page = request.args.get('per_page', PER_PAGE, int)
-    borrowers = Borrower.query.paginate(page=page, per_page=per_page).items
+    all_borrowers = Borrower.query.paginate(page=page, per_page=per_page).items
     return jsonify(
         {
-            "borrowers": [borrower.format() for borrower in borrowers],
+            "borrowers": [single_borrower.format() for single_borrower in all_borrowers],
             "total": len(Borrower.query.all())
         }
     )
@@ -506,11 +523,11 @@ def borrowers():
 @app.route('/borrowers/<int:borrower_id>/', methods=['GET', ])
 @requires_auth('get:borrower')
 def borrower(borrower_id):
-    borrower = Borrower.query.get_or_404(borrower_id)
+    requested_borrower = Borrower.query.get_or_404(borrower_id)
     return jsonify(
         {
             "success": True,
-            "borrower": borrower.format(),
+            "borrower": requested_borrower.format(),
         }
     )
 
@@ -549,11 +566,12 @@ def add_borrower():
 @app.route('/borrowers/<int:borrower_id>/update/', methods=['PATCH', ])
 @requires_auth('update:borrower')
 def update_borrower(borrower_id):
-    borrower = Borrower.query.get_or_404(borrower_id)
+    requested_borrower = Borrower.query.get_or_404(borrower_id)
     data = request.get_json()
-    borrower.name = borrower.name if data is None else data.get('name', borrower.name)
+    requested_borrower.name = requested_borrower.name if data is None else data.get(
+        'name', requested_borrower.name)
     try:
-        borrower.update()
+        requested_borrower.update()
         return jsonify(
             {
                 "success": True,
@@ -570,9 +588,9 @@ def update_borrower(borrower_id):
 @app.route('/borrowers/<int:borrower_id>/delete/', methods=['DELETE', ])
 @requires_auth('delete:borrower')
 def delete_borrower(borrower_id):
-    borrower = Borrower.query.get_or_404(borrower_id)
+    requested_borrower = Borrower.query.get_or_404(borrower_id)
     try:
-        borrower.delete()
+        requested_borrower.delete()
         return jsonify(
             {
                 "success": True,
@@ -590,12 +608,13 @@ def delete_borrower(borrower_id):
 @app.route('/borrowers/<int:borrower_id>/books/', methods=['GET', ])
 @requires_auth('get:borrower-books')
 def borrower_books(borrower_id):
-    books = Book.query.join(BorrowedBooks).filter(BorrowedBooks.borrower_id == borrower_id).all()
+    books_of_borrower = Book.query.join(BorrowedBooks).filter(
+        BorrowedBooks.borrower_id == borrower_id).all()
     return jsonify(
         {
             "success": True,
-            "books": [book.format() for book in books],
-            "total": len(books),
+            "books": [single_book.format() for single_book in books_of_borrower],
+            "total": len(books_of_borrower),
         }
     )
 
@@ -610,10 +629,11 @@ def borrower_books(borrower_id):
 def borrowed_books():
     page = request.args.get('page', 1, int)
     per_page = request.args.get('per_page', PER_PAGE, int)
-    borrowed_books = BorrowedBooks.query.paginate(page=page, per_page=per_page).items
+    all_borrowed_books = BorrowedBooks.query.paginate(
+        page=page, per_page=per_page).items
     return jsonify(
         {
-            "borrowed_books": [borrowed_book.format() for borrowed_book in borrowed_books],
+            "borrowed_books": [single_borrowed_book.format() for single_borrowed_book in all_borrowed_books],
             "total": len(BorrowedBooks.query.all())
         }
     )
@@ -622,11 +642,11 @@ def borrowed_books():
 @app.route('/borrowed_books/<int:borrowed_book_id>/', methods=['GET', ])
 @requires_auth('get:borrowed_book')
 def borrowed_book(borrowed_book_id):
-    borrowed_book = BorrowedBooks.query.get_or_404(borrowed_book_id)
+    requested_borrowed_book = BorrowedBooks.query.get_or_404(borrowed_book_id)
     return jsonify(
         {
             "success": True,
-            "borrowed_book": borrowed_book.format(),
+            "borrowed_book": requested_borrowed_book.format(),
         }
     )
 
@@ -652,7 +672,7 @@ def add_borrowed_book():
         ), 400
 
     book_id = int(data.get('book_id'))
-    book_ids = [book.id for book in Book.query.distinct(Book.id).all()]
+    book_ids = [single_book.id for single_book in Book.query.distinct(Book.id).all()]
     if book_id not in book_ids:
         return jsonify(
             {
@@ -663,7 +683,8 @@ def add_borrowed_book():
         ), 400
 
     borrower_id = int(data.get('borrower_id'))
-    borrowers_ids = [borrower.id for borrower in Borrower.query.distinct(Borrower.id).all()]
+    borrowers_ids = [
+        single_borrower.id for single_borrower in Borrower.query.distinct(Borrower.id).all()]
     if borrower_id not in borrowers_ids:
         return jsonify(
             {
@@ -697,10 +718,11 @@ def add_borrowed_book():
 def update_borrowed_book(borrowed_book_id):
     data = request.get_json()
 
-    borrowed_book = BorrowedBooks.query.get_or_404(borrowed_book_id)
-    book_id = borrowed_book.book_id if data is None else int(data.get('book_id'))
+    requested_borrowed_book = BorrowedBooks.query.get_or_404(borrowed_book_id)
+    book_id = requested_borrowed_book.book_id if data is None else int(
+        data.get('book_id'))
 
-    book_ids = [book.id for book in Book.query.distinct(Book.id).all()]
+    book_ids = [single_book.id for single_book in Book.query.distinct(Book.id).all()]
     if book_id not in book_ids:
         return jsonify(
             {
@@ -710,8 +732,10 @@ def update_borrowed_book(borrowed_book_id):
             }
         ), 400
 
-    borrower_id = borrowed_book.borrower_id if data is None else int(data.get('borrower_id'))
-    borrowers_ids = [borrower.id for borrower in Borrower.query.distinct(Borrower.id).all()]
+    borrower_id = requested_borrowed_book.borrower_id if data is None else int(
+        data.get('borrower_id'))
+    borrowers_ids = [
+        single_borrower.id for single_borrower in Borrower.query.distinct(Borrower.id).all()]
     if borrower_id not in borrowers_ids:
         return jsonify(
             {
@@ -720,10 +744,10 @@ def update_borrowed_book(borrowed_book_id):
                 "message": "borrower id must be in borrowers ids.",
             }
         ), 400
-    borrowed_book.book_id = book_id
-    borrowed_book.borrower_id = borrower_id
+    requested_borrowed_book.book_id = book_id
+    requested_borrowed_book.borrower_id = borrower_id
     try:
-        borrowed_book.update()
+        requested_borrowed_book.update()
         return jsonify(
             {
                 "success": True,
@@ -741,9 +765,9 @@ def update_borrowed_book(borrowed_book_id):
 @app.route('/borrowed_books/<int:borrowed_book_id>/delete/', methods=['DELETE', ])
 @requires_auth('delete:borrowed_book')
 def delete_borrowed_book(borrowed_book_id):
-    borrowed_book = BorrowedBooks.query.get_or_404(borrowed_book_id)
+    requested_borrowed_book = BorrowedBooks.query.get_or_404(borrowed_book_id)
     try:
-        borrowed_book.delete()
+        requested_borrowed_book.delete()
         return jsonify(
             {
                 "success": True,
@@ -763,7 +787,7 @@ def delete_borrowed_book(borrowed_book_id):
 def return_borrowed_book(borrowed_book_id):
     data = request.get_json()
 
-    borrowed_book = BorrowedBooks.query.get_or_404(borrowed_book_id)
+    requested_borrowed_book = BorrowedBooks.query.get_or_404(borrowed_book_id)
     if 'rating' not in data:
         return jsonify(
             {
@@ -777,10 +801,10 @@ def return_borrowed_book(borrowed_book_id):
             }
         ), 400
 
-    borrowed_book.returned_at = datetime.datetime.now()
-    borrowed_book.rating = data.get('rating')
+    requested_borrowed_book.returned_at = datetime.datetime.now()
+    requested_borrowed_book.rating = data.get('rating')
     try:
-        borrowed_book.update()
+        requested_borrowed_book.update()
         return jsonify(
             {
                 "success": True,
@@ -793,6 +817,7 @@ def return_borrowed_book(borrowed_book_id):
         abort(422)
     finally:
         db.session.close()
+
 
 ###################################################################
 # EXCEPTIONS
@@ -870,4 +895,4 @@ def server_error(error):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0')
