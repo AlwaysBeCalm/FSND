@@ -1,2 +1,4 @@
-heroku_sample
-venv
+../heroku_sample
+../venv
+*.idea*
+./__pycache__/
