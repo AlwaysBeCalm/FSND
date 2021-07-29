@@ -21,13 +21,11 @@ def get_token_auth_header():
     """
     auth = request.headers.get('Authorization', None)
     if not auth:
-        return jsonify(
+        return AuthError(
             {
-                "error": True,
                 'code': 'authorization_header_missing',
                 'description': 'Authorization header is expected.'
-            }
-        ), 400
+            }, 400)
 
     parts = auth.split()
     if parts[0].lower() != 'bearer':
@@ -132,18 +130,3 @@ def requires_auth(permission=''):
         return wrapper
 
     return requires_auth_wrapper
-
-
-audience = 'library'
-clientId = 'Z9BWZc9qwE1Y98CG22sZEwWZR9b86IoL'
-callbackURL = 'http://localhost'
-login_link = 'https://'
-login_link += 'fsnd-python.us.auth0.com'
-login_link += '/authorize?'
-login_link += 'audience=' + audience + '&'
-login_link += 'response_type=token&'
-login_link += 'client_id=' + clientId
-login_link += '&redirect_uri=' + callbackURL + ":8000/"
-# https://{{YOUR_DOMAIN}}/authorize?audience={{API_IDENTIFIER}}&response_type=token&client_id={{YOUR_CLIENT_ID}}&redirect_uri={{YOUR_CALLBACK_URI}}
-
-print(login_link)
